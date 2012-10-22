@@ -96,7 +96,7 @@ else
       
       <? if (PerfilAutorizado('SDOCEIUTAJ')) { ?>
       <tr>
-        <td height="30" align="center" valign="middle" class="menu1" onmouseout="Estilo(this, 'menu1');" onmouseover="Estilo(this, 'menu2');" onclick="window.location='busqueda.php';">Buscar Norma</td>
+        <td height="30" align="center" valign="middle" class="menu1" onmouseout="Estilo(this, 'menu1');" onmouseover="Estilo(this, 'menu2');" onclick="window.location='busqueda_normas.php';">Buscar Norma</td>
       </tr>
       <? } ?>
       

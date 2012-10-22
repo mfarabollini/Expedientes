@@ -1,5 +1,5 @@
 <? include('../inc/inicio.inc.php'); ?>
-<? include('../class/expediente.class.php'); ?>
+<? include('../class/normas.class.php'); ?>
 <?
 
 DesactivarSSL();
@@ -21,7 +21,7 @@ $numero_txt = '';
 
 if (isset($_GET['accion'])) 
 {
-	$expediente = new Expediente();
+	$norma = new Normas();
 	$accion = $_GET['accion'];
 
 	if ($accion == 'editar') 
@@ -29,7 +29,7 @@ if (isset($_GET['accion']))
 		CheckPerfiles('SDJ');
 		$numero = $_GET['numero'];
 		$numero_txt = number_format($_GET['numero'], 0, ',', '.');
-		$expediente->CargarExpediente($numero);
+		$norma->CargarNorma($numero);
 		if($_SESSION['perfil'] == 'J')
 			$onload = 'onload="DisabledInputs();"';
 	}
@@ -37,7 +37,7 @@ if (isset($_GET['accion']))
 
 	if ($accion == 'verif_numero') 
 	{
-		echo $expediente->VerifNumero($_GET['numero']);
+		echo $norma->VerifNumero($_GET['numero']);
 		exit;
 	}
 	
@@ -47,7 +47,7 @@ if (isset($_GET['accion']))
 		CheckPerfiles('SDO');
 		$titulo = 'Alta de Norma';
 		$numero = '(Nuevo)';
-		$onload = 'onload="ActualizaProyecto('."'".$expediente->tipo."'".');"';
+		$onload = 'onload="ActualizaProyecto('."'".$norma->tipo."'".');"';
 	}
 
 
@@ -56,9 +56,9 @@ if (isset($_GET['accion']))
 		CheckPerfiles('SDOJ');
 
 		if($_SESSION['perfil'] == 'J')
-			$expediente->GrabarTags();
+			$norma->GrabarTags();
 		else
-			$expediente->GrabarPost();
+			$norma->GrabarPost();
 			
 		Auditoria($expediente->numero, $_POST['accion_anterior']);
 		header("Location: confirma.php?numero=".$expediente->numero."&accion=".$_POST['accion_anterior']);
@@ -133,7 +133,7 @@ else
 						return true;
 					else
 					{
-						alert("Debe ingresar el gurpo de impresión");
+						alert("Debe ingresar el gurpo de impresi�n");
 						return false;
 					}
 				}
@@ -150,8 +150,8 @@ else
 	{
 		if (ValidarGrabado())
 		{
-			var oAgregados = document.getElementById('hdnAgregados');		
-			var oCombo = document.getElementById('agregados');
+			var oAgregados = document.getElementById('hdnModifica');		
+			var oCombo = document.getElementById('modifica');
 	
 			oAgregados.value = '|';
 			for (var i=0; i < oCombo.options.length; i++)
@@ -271,21 +271,21 @@ else
 	
 	function AgregarExpAg()
 	{
-		var oCombo = document.getElementById('agregados');		
+		var oCombo = document.getElementById('modifica');		
 		var oNumero = document.getElementById('numero');		
-		var oExpediente = document.getElementById('txt_agregar');		
+		var oNorma = document.getElementById('txt_agregar');		
 		
-		if (oExpediente.value=='') {
-			alert('Debe elegir un expediente.');
+		if (oNorma.value=='') {
+			alert('Debe elegir una norma.');
 		}
 		else {
 			var oAjax = nuevoAjax();
-			var existe_exp = '';
+			var existe_norma = '';
 			
 			
-			if (trim(oExpediente.value)==oNumero.value)
+			if (trim(oNorma.value)==oNumero.value)
 			{
-				alert("No puede ingresar como agregado a este mismo expediente.");
+				alert("No puede ingresar como agregado a este misma norma.");
 			}
 			else
 			{
@@ -296,17 +296,17 @@ else
 	
 						//if (existe_exp == 'S')
 						//{
-							if (!EstaEnCombo(oExpediente.value))
+							if (!EstaEnCombo(oNorma.value))
 							{
-								oCombo.options[oCombo.options.length] = new Option(oExpediente.value, oExpediente.value, false, false);
+								oCombo.options[oCombo.options.length] = new Option(oNorma.value, oNorma.value, false, false);
 											
 								if (oCombo.options.length > 0) {oCombo.selectedIndex=0;}
 								
 								sortSelect(oCombo);
-								oExpediente.value = '';
+								oNorma.value = '';
 							}
 							else
-								alert("Ya ha ingresado ese expediente agregado");
+								alert("Ya ha ingresado esa norma agregado");
 						//}
 						//else
 						//{			
@@ -323,10 +323,10 @@ else
 	
 	function EliminarSeleccionado()
 	{
-		var oCombo = document.getElementById('agregados');
+		var oCombo = document.getElementById('modifica');
 		
 		if (oCombo.selectedIndex == -1) {
-			alert('Debe elegir un expediente a remover');
+			alert('Debe elegir una norma a remover');
 		}
 		else {
 			oCombo.remove(oCombo.selectedIndex);			
@@ -410,11 +410,7 @@ else
           <tr>
             <td width="151" height="24" align="left" class="td1">N&uacute;mero de norma</td>
             <td width="342" align="left" class="td2"><strong>
-              <input id="nro_municipal" name="nro_municipal" type="text" value="<?=$expediente->nro_municipal?>" maxlength="100" style="display:none" />              
-	          
-			  <? if ($expediente->tipo != 'M') {echo $numero_txt;} ?>
-              
-              
+ 	                       
               <? if ($_GET['accion'] == 'editar') { ?>
               		<input id="numero" name="numero" type="hidden" value="<?=$numero?>" />
               <? } else { ?>
@@ -423,104 +419,34 @@ else
             </strong></td>
           </tr>
           <tr>
-            <td width="151" align="left" class="td1">Tipo de expediente</td>
+            <td width="151" align="left" class="td1">Tipo de Norma</td>
             <td width="342" align="left" class="td2"><select name="tipo" id="tipo" style="width:204px;" onchange="ActualizaProyecto(this.value);">
-                <option value="I" <? if ($expediente->tipo=='I') echo 'selected'; ?>>Interno</option>
-                <option value="M" <? if ($expediente->tipo=='M') echo 'selected'; ?>>Municipal</option>
-                <option value="L" <? if ($expediente->tipo=='L') echo 'selected'; ?>>Legislativo</option>
+                <option value="I" <? if ($norma->tipo=='I') echo 'selected'; ?>>Interno</option>
+                <option value="M" <? if ($norma->tipo=='M') echo 'selected'; ?>>Municipal</option>
+                <option value="L" <? if ($norma->tipo=='L') echo 'selected'; ?>>Legislativo</option>
               </select>
             </td>
           </tr>
-          <tr>
-            <td align="left" class="td1">Letra</td>
-            <td align="left" class="td2"><input id="letra" name="letra" type="text" style="width:10px;" maxlength="1" value="<?=utf8($expediente->letra)?>" /></td>
+          
+        <tr id="tr_caratula">
+            <td align="left" class="td1">Descripci&oacute;n</td>
+            <td align="left" class="td2"><textarea name="caratula" id="caratula" style="width:200px;" rows="5"><?=utf8($norma->descripcion)?></textarea></td>
           </tr>
-          <tr>
-            <td align="left" class="td1">Año</td>
-            <td align="left" class="td2"><input id="anio" name="anio" type="text" style="width:30px;" maxlength="4" onkeypress="return acceptNum(event)" value="<?=utf8($expediente->anio)?>" /></td>
-          </tr>
-          <tr>
-             <td align="left" class="td1">Fecha de presentación</td>
-            <td align="left" class="td2"><?=CalendarioCreaInput('fec_presentacion', $expediente->fec_presentacion, '')?></td>
-          </tr>
-          <tr id="tr_fec_sesion">
-            <td align="left" class="td1">Fecha de Sesión</td>
-            <td align="left" class="td2"><?=CalendarioCreaInput('fec_sesion', $expediente->fec_sesion, '')?></td>
-          </tr>
-          <tr>
-            <td align="left" class="td1">Causante</td>
-            <td align="left" class="td2">
-            <input id="id_causante_txt" name="id_causante_txt" type="text" style="width:200px;" maxlength="50" value="<?=utf8($expediente->id_causante_txt)?>" />
-            <input type="hidden" id="id_causante" name="id_causante" value="<?=utf8($expediente->id_causante)?>" />
-            </td>
-          </tr>
-          <tr id="tr_caratula">
-            <td align="left" class="td1">Carátula</td>
-            <td align="left" class="td2"><textarea name="caratula" id="caratula" style="width:200px;" rows="5"><?=utf8($expediente->caratula)?></textarea></td>
-          </tr>
-          <tr id="tr_tipo_proy">
-            <td align="left" class="td1">Tipo de proyecto</td>
-            <td align="left" class="td2"><input id="tipo_proy" name="tipo_proy" type="text" style="width:200px;" maxlength="35" value="<?=utf8($expediente->tipo_proy)?>" /></td>
-          </tr>
-          <tr id="tr_num_mensaje">
-            <td align="left" class="td1">Número de mensaje</td>
-            <td align="left" class="td2"><input id="num_mensaje" name="num_mensaje" type="text" style="width:200px;" maxlength="11" value="<?=utf8($expediente->num_mensaje)?>" /></td>
-          </tr>
-          <tr id="tr_com_destino">
-            <td align="left" class="td1">Comisión de Destino</td>
-            <td align="left" class="td2"><input id="com_destino_txt" name="com_destino_txt" type="text" style="width:200px;" maxlength="150" value="<?=utf8($expediente->com_destino_txt)?>" />
-                <input type="hidden" id="com_destino" name="com_destino" value="<?=$expediente->com_destino?>" />
-            </td>
-          </tr>
-          <tr id="tr_id_aprobacion">
-            <td align="left" class="td1">Forma de aprobación</td>
-            <td align="left" class="td2">
-            <input id="id_aprobacion_txt" name="id_aprobacion_txt" type="text" style="width:200px;" maxlength="150" value="<?=utf8($expediente->id_aprobacion_txt)?>" />
-                <input type="hidden" id="id_aprobacion" name="id_aprobacion" value="<?=utf8($expediente->id_aprobacion)?>" />
-            </td>
-          </tr>
-      
-          <tr id="tr_tipo_aprobacion">
-            <td align="left" class="td1">Tipo de aprobación</td>
-            <td align="left" class="td2"><input id="tipo_aprobacion" name="tipo_aprobacion" type="text" style="width:200px;" maxlength="40" value="<?=utf8($expediente->tipo_aprobacion)?>" /></td>
-          </tr>
-          <tr id="tr_fec_aprobacion">
-            <td align="left" class="td1">Fecha de aprobación</td>
-            <td align="left" class="td2"><?=CalendarioCreaInput('fec_aprobacion', $expediente->fec_aprobacion, '')?></td>
-          </tr>
-          <tr id="tr_id_ubicacion_actual">
-            <td align="left" class="td1">Ubicación actual</td>
-            <td align="left" class="td2">
-   			<?
-            /*
-		jony: Comente esto para que deje editar el "ubicacion actual"
-            
-            
-            	if ($accion=='alta')
-					$carga_ubicacion = '';
-				else
-					$carga_ubicacion = ' readonly onkeypress="javascript: alert('."'Para cambiar la ubicación actual debe cargar un movimiento desde el menú principal.'".')" ';
-		*/	
-	$carga_ubicacion = '';
 
-			?>
-            	<input id="id_ubicacion_actual_txt" name="id_ubicacion_actual_txt" type="text" style="width:200px;" maxlength="150" value="<?=utf8($expediente->id_ubicacion_actual_txt)?>" <?=$carga_ubicacion?> />
-                <input type="hidden" id="id_ubicacion_actual" name="id_ubicacion_actual" value="<?=utf8($expediente->id_ubicacion_actual)?>" />
-            </td>
-          </tr>          
-          <tr>
-            <td align="left" class="td1">Grupo de impresión</td>
-            <td align="left" class="td2"><? ArmaCombo('id_grupo', 'grupos_impresion', 'grupo', 'style="width:200px;" ', $expediente->id_grupo, true); ?></td>
-          </tr>    
-          <tr>
-            <td align="left" class="td1" valign="top" >Tags</td>
+          <tr id="tr_fec_aprobacion">
+            <td align="left" class="td1">Fecha de aprobaci&oacute;n</td>
+            <td align="left" class="td2"><?=CalendarioCreaInput('fec_aprobacion', $norma->fec_aprobacion, '')?></td>
+          </tr>
+
+          
+          <td align="left" class="td1" valign="top" >Tags</td>
             <td align="left" class="td2">
             	<input type="text" value="<?php echo $expediente->tags; ?>" name="tags" maxlength="200" style="width: 200px;" <?php if($_SESSION['perfil'] != 'J') echo "disabled"; ?> />
             	<div class="tags" >
 	            	Los tags se deben:
 	            	<ul>
 	            		<li>Estar separados por un espacio.</li>
-	            		<li>Tener una longitud mínima de 4 caracteres, de lo contrario no seran tenidos en cuenta.</li>
+	            		<li>Tener una longitud m&iacute;nima de 4 caracteres, de lo contrario no seran tenidos en cuenta.</li>
 	            	</ul>
             	</div>
             </td>
@@ -622,17 +548,17 @@ else
       <tr id="cont_solapa2" style="display:none">
         <td colspan="3" align="center" valign="middle"><table width="505" border="0" cellpadding="1" cellspacing="1" bgcolor="#FFFFFF">
           <tr>
-            <td height="25" colspan="2" align="center" valign="middle" class="header2">Expedientes agregados</td>
+            <td height="25" colspan="2" align="center" valign="middle" class="header2">Normas que modifica</td>
           </tr>
           <tr>
             <td width="50%" align="center" valign="middle" class="td2">
-            <select name="agregados" size="5" id="agregados" style="width:240px;">
+            <select name="modifica" size="5" id="modifica" style="width:240px;">
             <?
-            	 $agregados = explode('|', $expediente->agregados);
+            	 $modifica = explode('|', $norma->modifica) ;
 				 
-				 for ($i=0; $i < sizeof($agregados); $i++)
-				 	if ($agregados[$i] != '')
-					 	echo "<option value='".$agregados[$i]."'>".$agregados[$i]."</option>"
+				 for ($i=0; $i < sizeof($modifica); $i++)
+				 	if ($modifica[$i] != '')
+					 	echo "<option value='".$modifica[$i]."'>".$modifica[$i]."</option>"
 			?>
               </select>            </td>
             <td width="50%" align="left" valign="middle" class="td2">
@@ -760,7 +686,7 @@ else
 -->
 </div>
 </div>
-<input type="hidden" name="hdnAgregados" id="hdnAgregados" value="" />
+<input type="hidden" name="hdnModifica" id="hdnModifica" value="" />
 <input type="hidden" name="accion_anterior" id="accion_anterior" value="<?=$accion?>" />
 </form>
 </body>
