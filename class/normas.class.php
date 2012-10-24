@@ -438,9 +438,7 @@ class Normas
 	{				
 		$filtro = '';
 
-
-		$this->LeerPost();
-				
+		$this->LeerPost();				
 		
 		if ($this->fec_presentacion_desde=='null') $this->fec_presentacion_desde='';
 		if ($this->fec_presentacion_hasta=='null') $this->fec_presentacion_hasta='';
@@ -532,7 +530,7 @@ class Normas
 		$this->numero = str_replace('.', '', str_replace(',', '', $this->ValorPostNull('nro')));
 		$this->tipo = $this->ValorPost('tipo');
 
-		$this->caratula = substr($this->ValorPost('caratula'), 0, 250);
+		$this->descripcion = substr($this->ValorPost('descripcion'), 0, 250);
 
 		$this->fec_aprobacion = $this->ValorPostFecha('fec_aprobacion');
 		$this->fec_aprobacion_desde = $this->ValorPostFecha('fec_aprobacion_desde');
@@ -562,14 +560,10 @@ class Normas
 		{
 			$this->fec_alta = "'".date('Y-m-d H:i:s')."'";
 
-			$sql = "INSERT INTO expedientes ".
-				   "(tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
-				   "fec_sesion, com_destino, id_ubicacion_actual, ".
-				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_categoria, impreso, id_grupo) ".
+			$sql = "INSERT INTO normas ".
+				   "(tipo_norma, fec_aprob, dsc_norma, modifica, id_usuario_alta, fec_alta) ".
 				   "VALUES ".
-				   "('$this->tipo', '$this->letra', '$this->anio', '$this->nro_municipal', '$this->tipo_proy', '$this->num_mensaje', $this->id_causante, '$this->caratula', $this->fec_presentacion, ".
-				   "$this->fec_sesion, $this->com_destino, $this->id_ubicacion_actual, ".
-				   "$this->fec_aprobacion, $this->id_aprobacion, '$this->tipo_aprobacion', '$this->id_usuario_alta', $this->fec_alta, $this->fec_mod, '$this->agregados', $this->id_categoria, '$this->impreso', $this->id_grupo)";
+				   "('$this->tipo', $this->fec_aprobacion, '$this->descripcion','$this->modifica', '$this->id_usuario_alta', $this->fec_alta)";
 
 			if (!$conn->Execute($sql))
 			{
@@ -579,42 +573,15 @@ class Normas
 		}
 		else
 		{
-			//guardo una copia en historico		
-			$sql = "INSERT INTO expedientes_historico ".
-				   "(numero, tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
-				   "fec_sesion, com_destino, id_ubicacion_actual, ".
-				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo) ".
-				   "SELECT ".
-				   "numero, tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
-				   "fec_sesion, com_destino, id_ubicacion_actual, ".
-				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo ".
-				   "from expedientes where numero=$this->numero";
 
-			$conn->Execute($sql);
 			$this->fec_mod = "'".date('Y-m-d H:i:s')."'";
-			$sql = "UPDATE expedientes SET ".
-						   "tipo='$this->tipo', ".
-						   "letra='$this->letra', ".
-						   "anio='$this->anio', ".
-						   "nro_municipal='$this->nro_municipal', ".
-						   "tipo_proy='$this->tipo_proy', ".
-						   "num_mensaje='$this->num_mensaje', ".
-						   "id_causante=$this->id_causante, ".
-						   "caratula='$this->caratula', ".
-						   "fec_presentacion=$this->fec_presentacion, ".
-						   "fec_sesion=$this->fec_sesion, ".
-						   "com_destino=$this->com_destino, ".
-						   "id_ubicacion_actual=$this->id_ubicacion_actual, ".
-						   "id_categoria=$this->id_categoria, ".						   
-						   "fec_aprobacion=$this->fec_aprobacion, ".
-						   "id_aprobacion=$this->id_aprobacion, ".
-						   "tipo_aprobacion='$this->tipo_aprobacion', ".
-						   "impreso='$this->impreso', ".
-						   "id_grupo=$this->id_grupo, ".
-						   "id_usuario_alta=$this->id_usuario_alta, ".
+			$sql = "UPDATE normas SET ".
+						   "tipo_norma='$this->tipo', ".
+						   "fec_aprob=$this->fec_aprobacion, ".
+						   "dsc_norma='$this->descripcion', ".
+						   "modifica='$this->modifica' ".						   
 						   "id_usuario_mod=$this->id_usuario_mod, ".
 						   "fec_mod=$this->fec_mod, ".
-						   "agregados='$this->agregados' ".
 						   "where numero=$this->numero";
 
 			$registro_nuevo = 0;
@@ -622,107 +589,6 @@ class Normas
 			
 		}
 		
-		if($this->tipo == 'L') {
-			$mod_time = time();
-			
-//			$id_causante_txt = '';
-//			if($this->id_causante != '') {
-//				$rs = $conn->Execute("SELECT causante FROM causantes WHERE id_causante=" . $this->id_causante);
-//				if(!$rs->EOF)
-//					$id_causante_txt = $rs->fields['causante']; 
-//			}
-//			
-//			$id_ubicacion_actual_txt = '';
-//			if($this->id_ubicacion_actual != '') {
-//				$rs = $conn->Execute("SELECT destino FROM destinos WHERE id_destino=" . $this->id_ubicacion_actual);
-//				if(!$rs->EOF)
-//					$id_ubicacion_actual_txt = $rs->fields['destino']; 
-//			}
-
-			$this->CargarExpediente($this->numero);
-			
-//			if($registro_nuevo == 1) {
-//				$sqlTemp = "INSERT INTO expedientes_legislativos ".
-//				   "(numero, tipo_proy, fec_presentacion, fec_aprobacion, tipo_aprobacion, " .
-//				   "caratula, id_causante, id_causante_txt, id_ubicacion_actual, id_ubicacion_actual_txt" .
-//				   ", fec_alta) ".
-//				   "VALUES ".
-//				   "($this->numero, '$this->tipo_proy', $this->fec_presentacion, $this->fec_aprobacion, '$this->tipo_aprobacion', " .
-//				   "'$this->caratula', $this->id_causante, '$id_causante_txt', $this->id_ubicacion_actual, '$id_ubicacion_actual_txt' " .
-//					", $this->fec_alta)";
-//			} else {
-//				$sqlTemp = "UPDATE expedientes_legislativos SET ".
-//						   "tipo_proy='$this->tipo_proy', ".
-//						   "fec_presentacion='$this->fec_presentacion', ".
-//						   "fec_aprobacion='$this->fec_aprobacion', ".
-//						   "tipo_aprobacion='$this->tipo_aprobacion', ".
-//						   "caratula='$this->caratula', ".
-//						   "id_causante='$this->id_causante', ".
-//						   "id_causante_txt='$id_causante_txt', ".
-//						   "id_ubicacion_actual='$this->id_ubicacion_actual', ".
-//						   "id_ubicacion_actual_txt='$id_ubicacion_actual_txt' ".
-//						   "WHERE numero=$this->numero";
-//			}
-
-			if($registro_nuevo == 1) {
-				$sqlTemp = "INSERT INTO expedientes_legislativos ".
-					"(`numero`, `letra`, `anio`, `num_mensaje`, `tipo_proy`, `fec_presentacion`, `fec_sesion`, `fec_aprobacion`, " .
-					"`caratula`, `tipo_aprobacion`, `id_causante`, `id_causante_txt`, `com_destino`, `com_destino_txt`, `id_aprobacion`, " .
-					"`id_aprobacion_txt`, `id_ubicacion_actual`, `id_ubicacion_actual_txt`, `id_grupo`, `grupo`, `fec_alta`) ".
-				   "VALUES ".
-				   "($this->numero, '$this->letra', '$this->anio', '$this->num_mensaje', '$this->tipo_proy', '$this->fec_presentacion', '$this->fec_sesion', '$this->fec_aprobacion', " .    
-					"'$this->caratula', '$this->tipo_aprobacion', '$this->id_causante', '$this->id_causante_txt', '$this->com_destino', '$this->com_destino_txt', '$this->id_aprobacion_txt', " .
-					"'$this->id_aprobacion_txt', '$this->id_ubicacion_actual', '$this->id_ubicacion_actual_txt', '$this->id_grupo', '$this->grupo', '$this->fec_alta' ) ";
-			} else {
-				$sqlTemp = "UPDATE expedientes_legislativos SET ".
-						   "letra='$this->letra', " .
-						   "anio='$this->anio', " .
-						   "num_mensaje='$this->num_mensaje', " . 
-						   "tipo_proy='$this->tipo_proy', ".
-						   "fec_presentacion='$this->fec_presentacion', ".
-						   "fec_sesion='$this->fec_sesion', ".
-						   "fec_aprobacion='$this->fec_aprobacion', ".
-						   "caratula='$this->caratula', ".
-						   "tipo_aprobacion='$this->tipo_aprobacion', ".
-						   "id_causante='$this->id_causante', ".
-						   "id_causante_txt='$this->id_causante_txt', ".
-						   "com_destino='$this->com_destino', ".
-						   "com_destino_txt='$this->com_destino_txt', ".
-						   "id_aprobacion='$this->id_aprobacion', ".
-						   "id_aprobacion_txt='$this->id_aprobacion_txt', ".
-						   "id_ubicacion_actual='$this->id_ubicacion_actual', ".
-						   "id_ubicacion_actual_txt='$this->id_ubicacion_actual_txt', ".
-						   "id_grupo='$this->id_grupo', ".
-						   "grupo='$this->grupo' ".
-						   "WHERE numero=$this->numero";
-			}
-			
-			$conn2 =& ADONewConnection('mysql');
-
-			$error = true;
-			if($conn2->Connect($conn_web_server, $conn_web_user, $conn_web_pass, $conn_web_bd)) {
-				 if($conn2->Execute($sqlTemp))
-					$error = false;				 	
-			}
-			$conn2->debug=0;
-
-			if ($error) {
-				// Si hay un error, guarda los cambios en una tabla temporal.
-				$sql = 	"INSERT INTO expedientes_temporal " .
-					"(registro_nuevo, `numero`, `letra`, `anio`, `num_mensaje`, `tipo_proy`, `fec_presentacion`, `fec_sesion`, `fec_aprobacion`, " .
-					"`caratula`, `tipo_aprobacion`, `id_causante`, `id_causante_txt`, `com_destino`, `com_destino_txt`, `id_aprobacion`, " .
-					"`id_aprobacion_txt`, `id_ubicacion_actual`, `id_ubicacion_actual_txt`, `id_grupo`, `grupo`, `fec_alta`) ".
-				   "VALUES ".
-				   "($registro_nuevo, $this->numero, '$this->letra', '$this->anio', '$this->num_mensaje', '$this->tipo_proy', '$this->fec_presentacion', '$this->fec_sesion', '$this->fec_aprobacion', " .    
-					"'$this->caratula', '$this->tipo_aprobacion', '$this->id_causante', '$this->id_causante_txt', '$this->com_destino', '$this->com_destino_txt', '$this->id_aprobacion_txt', " .
-					"'$this->id_aprobacion_txt', '$this->id_ubicacion_actual', '$this->id_ubicacion_actual_txt', '$this->id_grupo', '$this->grupo', '$this->fec_alta' ) ";
-				$conn->Execute($sql);
-				//echo $conn->ErrorMsg();
-			
-			}
-
-		}
-		$this->RelacionarAgregados();
 		$conn->CompleteTrans(true);
 	}
 	
@@ -733,22 +599,10 @@ class Normas
 		$this->LeerPost();
 		
 		$conn->StartTrans();
-		//hago un insert o un update dependiendo de si tengo cargado uno o no
-		//guardo una copia en historico		
-		$sql = "INSERT INTO expedientes_historico ".
-			   "(numero, tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
-			   "fec_sesion, com_destino, id_ubicacion_actual, ".
-			   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo) ".
-			   "SELECT ".
-			   "numero, tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
-			   "fec_sesion, com_destino, id_ubicacion_actual, ".
-			   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo ".
-			   "from expedientes where numero=$this->numero";
-
-		$conn->Execute($sql);
 
 		$this->fec_mod = "'".date('Y-m-d H:i:s')."'";
-		$sql = "UPDATE expedientes SET ".
+		$sql = "UPDATE normas SET ".
+						   "id_usuario_mod=$this->id_usuario_mod, ".
 						   "fec_mod=$this->fec_mod, ".
 						   "where numero=$this->numero";
 		$conn->Execute($sql);
@@ -757,42 +611,6 @@ class Normas
 		$conn->CompleteTrans(true);
 	}
 	
-	
-	private function RelacionarAgregados()
-	{
-		global $conn;
-		
-		//primero desrelaciono todos de este
-		$sql = "update expedientes set agregados=replace(agregados, '|".$this->numero."|', '|') where agregados like '%|".$this->numero."|%'";
-		$conn->Execute($sql);
-		
-	
-		//luego relaciono los que van
-		if ($this->agregados != '' && $this->agregados != '|')
-		{
-			$vec = explode('|', $this->agregados);
-			for ($i=0; $i <= sizeof($vec); $i++)
-			{
-				if ($vec[$i] != '' && $vec[$i] != 0)
-				{
-				
-					$sql = "update expedientes set agregados= concat(if (agregados is null, '', agregados),'|".$this->numero."|') where numero=".$vec[$i];
-					$conn->Execute($sql);			
-				}
-			}
-		}
-		
-		//arreglo por si me quedo '||'
-		$sql = "update expedientes set agregados=replace(agregados, '||', '|')";
-		$conn->Execute($sql);
-
-		//arreglo por si me quedo solo un '|'
-		$sql = "update expedientes set agregados='' where agregados='|'";
-		$conn->Execute($sql);
-
-
-		
-	}
 	
 	public function MarcarImpreso()
 	{
@@ -1073,7 +891,7 @@ class Normas
 		global $conn;
 		
 		// Primero debe borrar los tags anteriores.
-		$rs = $conn->Execute("DELETE FROM `tags` WHERE `numero_expediente`= {$this->numero}");
+		$rs = $conn->Execute("DELETE FROM `tags_normas` WHERE `nro_norma`= {$this->numero}");
 		
 		$tags = explode(' ',$this->tags);
 		
@@ -1084,7 +902,7 @@ class Normas
 			}
 			
 			if(strlen($tagSave)>0) {
-				$sql = "INSERT INTO `tags` (`numero_expediente`, `tags`) VALUES ({$this->numero}, '{$tagSave}')";
+				$sql = "INSERT INTO `tags_normas` (`nro-norma`, `tags`) VALUES ({$this->numero}, '{$tagSave}')";
 				$rs = $conn->Execute($sql);
 			}
 		}

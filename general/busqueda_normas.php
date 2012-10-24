@@ -41,7 +41,6 @@ if (isset($_GET['accion']))
 		
 		Auditoria('null', 'Imprimio busqueda con filtro:<br>'.$expediente->FiltroBuscar());
 		
-		
 		$pdf =& new Cezpdf('LEGAL', 'landscape');
 		$pdf->selectFont('../inc/pdf/fonts/Helvetica.afm');
 		$datacreator = array (
@@ -122,14 +121,13 @@ if (isset($_GET['accion']))
 		{
 			if (numero.value == "" && tipo.value == "" && anio.value == "" && 
 				xfec_aprobacion_desde.value == "" &&
-				xfec_aprobacion_hasta.value == "" &&
+				xfec_aprobacion_hasta.value == "")
 			{
 				alert("Debe elegir al menos un criterio.");
 				return false;
-			}
-			else
+			}else{
 				return true;
-				
+			}	
 		}
 	}
 	
@@ -152,6 +150,7 @@ if (isset($_GET['accion']))
 		{
 			with (document.form1)
 			{
+alert("ss");
 				action = 'busqueda_normas.php?accion=buscar';
 				target = '';
 				submit();

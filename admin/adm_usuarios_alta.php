@@ -109,7 +109,6 @@ if (isset($_GET['accion'])) {
 					todoOk = false;
 				}
 			}
-		alert(todoOk)	
 			if (todoOk) {
 				target = "iframe_data";
 				action = "adm_usuarios_alta.php?accion=alta";
@@ -173,7 +172,7 @@ if (isset($_GET['accion'])) {
 		<td width="465" align="left" class="td2"><input name="nick" type="text" id="nick" value="<?=$nick?>" maxlength="255" style="width:235px;"></td>
 	</tr>
 	<tr>
-		<td width="117" align="left" class="td1">Direccion</td>
+		<td width="117" align="left" class="td1">Direcci&oacute;n</td>
 		<td width="465" align="left" class="td2"><input name="direccion" type="text" id="direccion" value="<?=$direccion?>" maxlength="255" style="width:235px;"></td>
 	</tr>
 	<tr>
