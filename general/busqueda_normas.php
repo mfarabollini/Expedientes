@@ -30,7 +30,6 @@ if (isset($_GET['accion']))
 	{
 		$rs_busq = $conn->Execute($norma->SqlBuscar());
 		$esPostBack = true;
-		Auditoria('null', 'Busqueda con filtro:<br>'.$expediente->FiltroBuscar());
 	}
 
 	if ($_GET['accion'] == 'imprimir') 
@@ -150,7 +149,6 @@ if (isset($_GET['accion']))
 		{
 			with (document.form1)
 			{
-alert("ss");
 				action = 'busqueda_normas.php?accion=buscar';
 				target = '';
 				submit();
@@ -209,17 +207,20 @@ alert("ss");
             <td height="25" colspan="4" align="center" valign="middle" class="header2"><?=$titulo_busq?></td>
           </tr>
           <tr>
-            <td width="178" height="24" align="left" class="td1">N&uacute;mero de expediente</td>
+            <td width="178" height="24" align="left" class="td1">N&uacute;mero de Norma</td>
             <td width="202" align="left" class="td2"><input type="text" name="numero" id="numero" /></td>
             
             <td width="143" align="left" class="td1">Tipo de norma</td>
             <td width="204" align="left" class="td2">
-            <select name="tipo" id="tipo" style="width:204px;">      
-	            <option value="" selected										   >Elegir..</option>        
-				<option value="Ord" <? if ($norma->tipo=='Ord') echo 'selected'; ?>>Ordenanza</option>
-		    	<option value="Res" <? if ($norma->tipo=='Res') echo 'selected'; ?>>Resoluci&oacute;n</option>				    
-	            <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
-            </select></td>
+			  <select name="tipo" id="tipo" style="width:204px;">      
+			  	<option value="">- Elegir -</option>    
+                <option value="Ord" <? if ($norma->tipo=='Ord') echo 'selected'; ?>>Ordenanza</option>
+                <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
+                <option value="Res" <? if ($norma->tipo=='Res') echo 'selected'; ?>>Resoluci&oacute;n</option>
+                <option value="Com" <? if ($norma->tipo=='Com') echo 'selected'; ?>>Minuta de Comunicaci&oacute;n</option>
+                <option value="Dla" <? if ($norma->tipo=='Dla') echo 'selected'; ?>>Declaraci&oacute;n</option>
+              </select>
+            </td>
           </tr>
 
           <tr>
@@ -287,21 +288,43 @@ alert("ss");
 			<tr class="<?=$clase?>">
 			  <td align="right">
 			  <?
-		        	echo number_format($rs_busq->fields['numero'], 0, ',', '.');
+		        	echo number_format($rs_busq->fields['nro_norma'], 0, ',', '.');
 			  ?>
               </td>
-			  <td align="left"><?=$rs_busq->fields['tipo_norma']?></td>
+			  <td align="left">
+			  
+				<? switch ($rs_busq->fields['tipo_norma']){
+					case 'ORD':
+						echo 'Ordenanza';
+						break;		
+					case 'DEC':
+						echo 'Decreto';
+						break;
+					case 'RES':
+						echo 'Resoluci&oacute;n';
+						break;
+					case 'COM':
+						echo 'Minuta de Comunicaci&oacute;n';
+						break;
+					case 'DLA':
+						echo 'Declaraci&oacute;n';
+						break;
+				}
+				?>
+
+			  
+			  </td>
 			  <td align="right"><?=FormatoFecha($rs_busq->fields['fec_aprob'])?></td>
 			  <td align="left"><?=utf8($rs_busq->fields['dsc_norma'])?></td>
 			  <td align="center" nowrap="nowrap">
-              <a href="ver_expediente.php?numero=<?=$rs_busq->fields['numero']?>" target="_blank"><img src="../imagenes/ver.gif" alt="Ver expediente" width="28" height="16" border="0" /></a>
+              <a href="ver_norma.php?numero=<?=$rs_busq->fields['nro_norma']?>" target="_blank"><img src="../imagenes/ver.gif" alt="Ver expediente" width="28" height="16" border="0" /></a>
               <? if ($_SESSION['perfil'] == 'D' || $_SESSION['perfil'] == 'S' || $_SESSION['perfil'] == 'J' || ($_SESSION['perfil'] == 'T' && $rs_busq->fields['tipo'] == 'I' )){ ?>
                   &nbsp;&nbsp;
-                  <a href="javascript: Editar(<?=$rs_busq->fields['numero']?>);"><img src="../imagenes/editar.gif" alt="Editar expediente" width="20" height="16" border="0" /></a>
+                  <a href="javascript: Editar(<?=$rs_busq->fields['nro_norma']?>);"><img src="../imagenes/editar.gif" alt="Editar expediente" width="20" height="16" border="0" /></a>
               <? } ?>
               <? if ($_SESSION['perfil'] != 'C' && $_SESSION['perfil'] != 'U' && $_SESSION['perfil'] != 'E' && $_SESSION['perfil'] != 'T' && $_SESSION['perfil'] != 'A'){ ?>
                   &nbsp;&nbsp;
-                  <a href="javascript: GenerarPDF(<?=$rs_busq->fields['numero']?>);"><img src="../imagenes/pdf.gif" alt="Generar PDF" width="16" height="16" border="0" /></a></td>
+                  <a href="javascript: GenerarPDF(<?=$rs_busq->fields['nro_norma']?>);"><img src="../imagenes/pdf.gif" alt="Generar PDF" width="16" height="16" border="0" /></a></td>
               <? } ?>
 			</tr>
 		<? 

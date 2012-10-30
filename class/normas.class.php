@@ -48,7 +48,7 @@ class Normas
 			$sql;
 			$rs;
 			
-			$sql = "select numero from normas where numero=$pNumero";
+			$sql = "select nro_norma from normas where nro_norma=$pNumero";
 			if (!($rs = $conn->Execute($sql)))
 			{
 				return 'N';
@@ -69,7 +69,7 @@ class Normas
 	private function InicializarValores()
 	{
 		$this->numero = '';
-		$this->tipo = 'Ord';
+		$this->tipo = 'null';
 		$this->descripcion = '';
 		$this->fec_aprobacion = '';
 		$this->modifica = '';		
@@ -170,9 +170,8 @@ class Normas
 			$sql;
 			$rs;
 		
-			$sql = "select n.*, t.tags as tags, m.normas_modifica as normas_modif  ".
+			$sql = "select n.*, t.tags as tags ".
 			   "from normas n ".
-			   "left join normas_mod m on m.nro_norma = n.nro_norma ".
 			   "left join tags_normas t on t.nro_norma = n.nro_norma ".
 			   "where n.nro_norma=$nro_norma";
 			   
@@ -188,7 +187,7 @@ class Normas
 			$this->tipo = $rs->fields['tipo_norma'];
 			$this->descripcion = $rs->fields['dsc_norma'];
 			$this->fec_aprobacion = $rs->fields['fec_aprob'];
-			$this->modifica = $rs->fields['normas_modif'];
+			$this->modifica = $rs->fields['modifica'];
 			$this->tags = $rs->fields['tags'];
 			
 			return true;
@@ -407,26 +406,25 @@ class Normas
 
 						
 		if ($this->TieneValor($this->numero))
-			$filtro .= " and ((nro_norma=".$this->numero." )";
+			$filtro .= " and n.nro_norma=".$this->numero." ";
 			
 		if ($this->TieneValor($this->tipo))
-			$filtro .= " and tipo_norma='".$this->tipo."'";
+			$filtro .= " and n.tipo_norma='".$this->tipo."'";
 			
 		if ($this->TieneValor($this->descripcion))
-			$filtro .= " and dsc_norma like '%".$this->descripcion."%'";
+			$filtro .= " and n.dsc_norma like '%".$this->descripcion."%'";
 					
 		if ($this->TieneValor($this->fec_aprobacion_desde))
-			$filtro .= " and fec_aprobacion >= '".$this->fec_aprobacion_desde."'";
+			$filtro .= " and n.fec_aprobacion >= '".$this->fec_aprobacion_desde."'";
 			
 		if ($this->TieneValor($this->fec_aprobacion_hasta))
-			$filtro .= " and fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
+			$filtro .= " and n.fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
 								
 		if ($this->TieneValor($this->tags))
-			$filtro .= " and MATCH (tags) AGAINST ('{$this->tags}') ";
+			$filtro .= " and MATCH (t.tags) AGAINST ('{$this->tags}') ";
 		
-		$sql = "select n.*, t.tags as tags, m.normas_modifica as normas_modif  ".
+		$sql = "select n.*, t.tags as tags ".
 			   "from normas n ".
-			   "left join normas_mod m on m.nro_norma = n.nro_norma ".
 			   "left join tags_normas t on t.nro_norma = n.nro_norma ".
 			   "where 1=1 ".$filtro;
 
@@ -527,7 +525,7 @@ class Normas
 
 	private function LeerPost()
 	{				
-		$this->numero = str_replace('.', '', str_replace(',', '', $this->ValorPostNull('nro')));
+		$this->numero = str_replace('.', '', str_replace(',', '', $this->ValorPostNull('numero')));
 		$this->tipo = $this->ValorPost('tipo');
 
 		$this->descripcion = substr($this->ValorPost('descripcion'), 0, 250);

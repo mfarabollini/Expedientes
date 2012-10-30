@@ -21,8 +21,9 @@ $numero_txt = '';
 
 if (isset($_GET['accion'])) 
 {
-	$norma = new Normas();
 	$accion = $_GET['accion'];
+	
+	$norma = new Normas();
 
 	if ($accion == 'editar') 
 	{
@@ -59,8 +60,7 @@ if (isset($_GET['accion']))
 		else
 			$norma->GrabarPost();
 			
-		Auditoria($norma->numero, $_POST['accion_anterior']);
-		header("Location: confirma.php?numero=".$norma->numero."&accion=".$_POST['accion_anterior']);
+		header("Location: confirma_norma.php?numero=".$norma->numero."&accion=".$_POST['accion_anterior']);
 	}
 	
 }
@@ -106,14 +106,18 @@ else
 		
 		with (document.form1)
 		
-		{
-			if (tipo.value != "") todo_vacio = false;
+		{	
+			if (tipo.value == "null"){
+				alert("Debe completar el tipo de Norma");
+				return false;
+			}	
+
 			if (descripcion.value != "") todo_vacio = false;
 			if (xfec_aprobacion.value != "") todo_vacio = false;
 		
 			if (todo_vacio)
 			{
-				alert("Debe completar al menos un valor");
+				alert("Debe completar o la Descripcion o la Fecha de Aprobacion");
 				return false;
 			}else{
 				return true;
@@ -132,7 +136,7 @@ else
 			oAgregados.value = '|';
 			for (var i=0; i < oCombo.options.length; i++)
 				oAgregados.value += oCombo.options[i].value + "|";
-	
+
 			document.form1.submit();
 		}
 	}
@@ -185,18 +189,18 @@ else
 		return existe;
 	}
 	
-	
+
+
 	function AgregarNormaMod()
 	{
 		var oCombo = document.getElementById('modifica');		
 		var oNumero = document.getElementById('numero');		
-		var oNorma = document.getElementById('txt_agregar');		
-		
+		var oNorma = document.getElementById('txt_agregar');	
+
 		if (oNorma.value=='') {
 			alert('Debe elegir una norma.');
 		}
 		else {
-			var existe_norma = '';
 			
 			if (trim(oNorma.value)==oNumero.value)
 			{
@@ -204,18 +208,34 @@ else
 			}
 			else
 			{
+
 				if (!EstaEnCombo(oNorma.value))
 				{
-					oCombo.options[oCombo.options.length] = new Option(oNorma.value, oNorma.value, false, false);
-								
-					if (oCombo.options.length > 0) {oCombo.selectedIndex=0;}
+
+					var oAjax = nuevoAjax();
+					var ret;
 					
-					sortSelect(oCombo);
-					oNorma.value = '';
+					oAjax.open("GET", "norma.php?accion=verif_numero&numero="+oNorma.value,true);
+					oAjax.onreadystatechange=function() {
+						if (oAjax.readyState=='4' || oAjax.readyState=="complete") {
+							ret = oAjax.responseText;
+							if(ret == 'N'){
+								alert("Nro de Norma inexistente");					
+							}else{
+								oCombo.options[oCombo.options.length] = new Option(oNorma.value, oNorma.value, false, false);
+								
+								if (oCombo.options.length > 0) {oCombo.selectedIndex=0;}
+								
+								sortSelect(oCombo);
+								oNorma.value = '';
+							}
+						}
+					}
+					oAjax.send(null)
+
 				}
 				else
 					alert("Ya ha ingresado esa norma agregado");
-
 			}		
 		}
 	}
@@ -309,7 +329,9 @@ else
           </tr>
           <tr>
             <td width="151" align="left" class="td1">Tipo de Norma</td>
-            <td width="342" align="left" class="td2"><select name="tipo" id="tipo" style="width:204px;">
+            <td width="342" align="left" class="td2">		  
+			  <select name="tipo" id="tipo" style="width:204px;">          
+			  	<option value="null">[Elegir...]</option>';  
                 <option value="Ord" <? if ($norma->tipo=='Ord') echo 'selected'; ?>>Ordenanza</option>
                 <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
                 <option value="Res" <? if ($norma->tipo=='Res') echo 'selected'; ?>>Resoluci&oacute;n</option>
