@@ -148,11 +148,11 @@ class Expediente
 
 		$this->lista1 = 'GOBIERNO Y CULTURA';
 		$this->lista2 = 'PRESUPUESTO Y HACIENDA';
-		$this->lista3 = 'OBRAS PUBLICAS Y SEGURIDAD';
-		$this->lista4 = 'SEGURIDAD PUBLICA y CIUDADANA';
+		$this->lista3 = 'OBRAS PUBLICAS';
+		$this->lista4 = 'SEGURIDAD PUBLICA Y COMUNITARIA';
 		$this->lista5 = 'SALUD Y ACCION SOCIAL';
 		$this->lista6 = 'PLANEAMIENTO Y URBANISMO';
-		$this->lista7 = 'SERVICIOS PUBLICOS Y CONCEDIDOS';
+		$this->lista7 = 'SERVICIOS PUBLICOS CONCEDIDOS';
 		$this->lista8 = 'PRODUCCION Y PROMOCION DEL EMPLEO';
 		$this->lista9 = 'ECOLOGIA Y MEDIO AMBIENTE';
 		$this->lista10 = 'DERECHOS HUMANOS';	
@@ -291,10 +291,6 @@ class Expediente
 			$this->id_grupo = $rs->fields['id_grupo'];
 			$this->grupo = $rs->fields['grupo'];
 			$this->tags = $rs->fields['tags'];
-			$this->decretos = $rs->fields['decretos'];
-			//$this->declaraciones = $rs->fields['declaraciones'];
-			$this->minutas = $rs->fields['minutas'];
-			$this->ordenanzas_y_resoluciones = $rs->fields['ordenanzas_y_resoluciones'];
 			
 			return true;
 		}
@@ -496,13 +492,16 @@ class Expediente
 	    return $anioa."-".$mesa."-".$diaa;
 	}
 
+	
 	public function SqlBuscar()
-	{
-		$this->LeerPost();
-
+	{				
 		$sql = '';
 		global $conn;
 		$filtro = '';
+
+
+		$this->LeerPost();
+				
 		
 		if ($this->fec_presentacion_desde=='null') $this->fec_presentacion_desde='';
 		if ($this->fec_sesion_desde=='null') $this->fec_sesion_desde='';
@@ -511,251 +510,71 @@ class Expediente
 		if ($this->fec_aprobacion_desde=='null') $this->fec_aprobacion_desde='';
 		if ($this->fec_aprobacion_hasta=='null') $this->fec_aprobacion_hasta='';
 
-
-		if ($this->TieneValor($this->num_mensaje)) 
+						
+		if ($this->TieneValor($this->numero))
+			$filtro .= " and ((numero=".$this->numero." and tipo<>'M') or (nro_municipal='".$this->numero."' and tipo='M'))";
+			
+		if ($this->TieneValor($this->tipo))
+			$filtro .= " and tipo='".$this->tipo."'";
+			
+		if ($this->TieneValor($this->letra))
+			$filtro .= " and letra='".$this->letra."'";
+			
+		if ($this->TieneValor($this->anio))
+			$filtro .= " and anio='".$this->anio."'";
+			
+		if ($this->TieneValor($this->tipo_proy))
+			$filtro .= " and tipo_proy='".$this->tipo_proy."'";
+			
+		if ($this->TieneValor($this->num_mensaje))
 			$filtro .= " and num_mensaje='".$this->num_mensaje."'";
-
-		if ($this->TieneValor($this->caratula))
-			$filtro .= " and caratula like '%".$this->caratula."%'";
-		
-		if ($this->TieneValor($this->tipo_aprobacion))
-			$filtro .= " and tipo_aprobacion like '%".$this->tipo_aprobacion."%'";
-
-
-		if ($this->TieneValor($this->agregados_txt))
-			$filtro .= " and agregados like '%|".$this->agregados_txt."|%'";
-
+			
 		if ($this->TieneValor($this->id_causante_txt))
 			$filtro .= " and cau.causante like '%".$this->id_causante_txt."%'";
-
+			
+		if ($this->TieneValor($this->caratula))
+			$filtro .= " and caratula like '%".$this->caratula."%'";
+			
+		if ($this->TieneValor($this->fec_presentacion_desde))
+			$filtro .= " and fec_presentacion >= '".$this->fec_presentacion_desde."'";
+			
+		if ($this->TieneValor($this->fec_presentacion_hasta))
+			$filtro .= " and fec_presentacion <= '".$this->fec_presentacion_hasta."'";
+			
+		if ($this->TieneValor($this->fec_sesion_desde))
+			$filtro .= " and fec_sesion >= '".$this->fec_sesion_desde."'";
+			
+		if ($this->TieneValor($this->fec_sesion_hasta))
+			$filtro .= " and fec_sesion <= '".$this->fec_sesion_hasta."'";
+			
+		if ($this->TieneValor($this->fec_aprobacion_desde))
+			$filtro .= " and fec_aprobacion >= '".$this->fec_aprobacion_desde."'";
+			
+		if ($this->TieneValor($this->fec_aprobacion_hasta))
+			$filtro .= " and fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
+								
 		if ($this->TieneValor($this->com_destino_txt))
 			$filtro .= " and d1.destino like '".$this->com_destino_txt."%'";
-
+			
 		if ($this->TieneValor($this->id_ubicacion_actual_txt))
 			$filtro .= " and d2.destino like '".$this->id_ubicacion_actual_txt."%'";
 
+		if ($this->TieneValor($this->id_categoria_txt))
+			$filtro .= " and cat.categoria like '".$this->id_categoria_txt."%'";
+			
 		if ($this->TieneValor($this->id_aprobacion_txt))
 			$filtro .= " and ap.aprobacion like '%".$this->id_aprobacion_txt."%'";
-
 			
-		if ($this->TieneValor($this->numero))
-			$filtro .= " and ((numero=".$this->numero." and tipo<>'M') or (nro_municipal='".$this->numero."' and tipo='M'))";
-		
-		if ($this->TieneValor($this->tipo))
-			$filtro .= " and tipo='".$this->tipo."'";
+		if ($this->TieneValor($this->tipo_aprobacion))
+			$filtro .= " and tipo_aprobacion like '%".$this->tipo_aprobacion."%'";
 			
-		if ($this->TieneValor($this->letra))
-			$filtro .= " and letra='".$this->letra."'";
-			
-		if ($this->TieneValor($this->anio))
-			$filtro .= " and anio='".$this->anio."'";
-			
-		if ($this->TieneValor($this->tipo_proy)) 
-			$filtro .= " and tipo_proy='".$this->tipo_proy."'";
-
-		if ($this->TieneValor($this->fec_presentacion_desde))
-			$filtro .= " and fec_presentacion >= '".$this->fec_presentacion_desde."'";
-			
-		if ($this->TieneValor($this->fec_presentacion_hasta))
-			$filtro .= " and fec_presentacion <= '".$this->fec_presentacion_hasta."'";
-			
-		if ($this->TieneValor($this->fec_sesion_desde))
-			$filtro .= " and fec_sesion >= '".$this->fec_sesion_desde."'";
-			
-		if ($this->TieneValor($this->fec_sesion_hasta))
-			$filtro .= " and fec_sesion <= '".$this->fec_sesion_hasta."'";
-			
-		if ($this->TieneValor($this->fec_aprobacion_desde))
-			$filtro .= " and fec_aprobacion >= '".$this->fec_aprobacion_desde."'";
-			
-		if ($this->TieneValor($this->fec_aprobacion_hasta))
-			$filtro .= " and fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
-
-		if ($this->TieneValor($this->id_categoria_txt))
-			$filtro .= " and cat.categoria like '".$this->id_categoria_txt."%'";
+		if ($this->TieneValor($this->agregados_txt))
+			$filtro .= " and agregados like '%|".$this->agregados_txt."|%'";
 
 		if ($this->TieneValor($this->tags))
 			$filtro .= " and MATCH (tags) AGAINST ('{$this->tags}') ";
 		
-		
 		$sql = "select e.*, cat.categoria, d1.destino as com_destino_txt, d2.destino as id_ubicacion_actual_txt, ap.aprobacion as id_aprobacion_txt, g.grupo, cau.causante as id_causante_txt ".
-			   "from expedientes e ".
-			   "left join destinos d1 on d1.id_destino=e.com_destino ".
-			   "left join destinos d2 on d2.id_destino=e.id_ubicacion_actual ".
-			   "left join categorias cat on cat.id_categoria=e.id_categoria ".
-			   "left join formas_aprobacion ap on ap.id_aprobacion=e.id_aprobacion ".		
-			   "left join causantes cau on cau.id_causante=e.id_causante ".			   	   
-			   "left join grupos_impresion g on g.id_grupo=e.id_grupo ".
-			   "left join tags t on t.numero_expediente=e.numero ".
-			   "where 1=1 ".$filtro.
-			   " order by numero DESC, nro_municipal DESC";
-
-		return $sql;
-	}
-		
-	public function SqlBuscarAvanzado()
-	{
-		
-		$this->LeerPost();
-
-		$sql = '';
-		global $conn;
-		$filtro = '';
-		$match = "";
-
-		
-		if($_POST['opcion_busqueda']=='general') {
-			// Busca palabra clave en todo los campos.
-			$valorBusqueda = $_POST['input_busqueda_general'];
-// 	Campos texto expediente:
-//    		caratula
-//    		tipo_aprobacion
-//    		num_mensaje
-
-// 	Campos texto relacionados:    		
-//    		com_destino_txt
-//    		id_ubicacion_actual_txt
-//    		id_causante_txt
-//    		id_aprobacion_txt
-//    		agregados_txt
-			$valorBusqueda = str_replace("\''", '"', $valorBusqueda);
-			$valorBusqueda = $this->parsearCampos($valorBusqueda, $error);
-			
-			$filtro .= " and MATCH (caratula, tipo_aprobacion, num_mensaje) AGAINST ('". implode(" ",$valorBusqueda) ."') ";
-			$match = ", MATCH (caratula, tipo_aprobacion, num_mensaje) AGAINST ('". implode(" ",$valorBusqueda) ."')  AS relevancia";
-
-		} else if($_POST['opcion_busqueda']=='campo') {
-    		$campo = $_POST['select_busqueda_campo'];
-    		$valorBusqueda = $_POST['input_busqueda_campo'];
-    		
-    		if ($this->TieneValor($valorBusqueda)) {
-	    		$valorBusqueda = str_replace("\''", '"', $valorBusqueda);
-				$valorBusqueda = $this->parsearCampos($valorBusqueda, $error);
-				
-				switch($campo) {
-					case "num_mensaje":  
-						$filtro .= " and MATCH (num_mensaje) AGAINST ('". implode(" ",$valorBusqueda) ."') ";
-						$match = ", MATCH (num_mensaje) AGAINST ('". implode(" ",$valorBusqueda) ."') AS relevancia";
-						break;
-					case "caratula":
-						$filtro .= " and MATCH (caratula) AGAINST ('". implode(" ",$valorBusqueda) ."') ";
-						$match = ", MATCH (caratula) AGAINST ('". implode(" ",$valorBusqueda) ."')  AS relevancia";
-						break;	
-					case "tipo_aprobacion":
-						$filtro .= " and MATCH (tipo_aprobacion) AGAINST ('". implode(" ",$valorBusqueda) ."') ";
-						$match = ", MATCH (tipo_aprobacion) AGAINST ('". implode(" ",$valorBusqueda) ."')  AS relevancia";
-						break;
-					case "id_aprobacion_txt":
-						$filtro .= " and tipo_aprobacion like '%";
-						$filtro .= implode("%' and tipo_aprobacion like '%", $valorBusqueda);
-						$filtro .= "%'";
-						break;
-					case "agregados_txt":
-						$filtro .= " and agregados like '%";
-						$filtro .= implode("%' and agregados like '%", $valorBusqueda);
-						$filtro .= "%'";
-						break;
-					case "id_causante_txt":
-						$filtro .= " and cau.causante like '%";
-						$filtro .= implode("%' and cau.causante like '%", $valorBusqueda);
-						$filtro .= "%'";
-						break;
-					case "com_destino_txt":
-						$filtro .= " and d1.destino like '%";
-						$filtro .= implode("%' and d1.destino like '%", $valorBusqueda);
-						$filtro .= "%'";
-						break;
-					case "id_ubicacion_actual_txt":
-						$filtro .= " and d2.destino like '%";
-						$filtro .= implode("%' and d2.destino like '%", $valorBusqueda);
-						$filtro .= "%'";
-						break;
-				}
-    		}
-		} else if($_POST['opcion_busqueda']=='numero') {
-			$valorBusqueda = $_POST['numero'];
-			if ($this->TieneValor($valorBusqueda))
-				$filtro .= " and num_mensaje='".$this->num_mensaje."'";
-		}
-
-		if ($this->fec_presentacion_desde=='null') $this->fec_presentacion_desde='';
-		if ($this->fec_sesion_desde=='null') $this->fec_sesion_desde='';
-		if ($this->fec_presentacion_hasta=='null') $this->fec_presentacion_hasta='';
-		if ($this->fec_sesion_hasta=='null') $this->fec_sesion_hasta='';
-		if ($this->fec_aprobacion_desde=='null') $this->fec_aprobacion_desde='';
-		if ($this->fec_aprobacion_hasta=='null') $this->fec_aprobacion_hasta='';
-
-		$valores = Array();
-		$error = Array();
-
-//		if ($this->TieneValor($this->num_mensaje)) 
-//			$filtro .= " and num_mensaje='".$this->num_mensaje."'";
-
-//		if ($this->TieneValor($this->caratula))
-//			$filtro .= " and caratula like '%".$this->caratula."%'";
-		
-//		if ($this->TieneValor($this->tipo_aprobacion))
-//			$filtro .= " and tipo_aprobacion like '%".$this->tipo_aprobacion."%'";
-
-
-//		if ($this->TieneValor($this->agregados_txt))
-//			$filtro .= " and agregados like '%|".$this->agregados_txt."|%'";
-
-//		if ($this->TieneValor($this->id_causante_txt))
-//			$filtro .= " and cau.causante like '%".$this->id_causante_txt."%'";
-
-//		if ($this->TieneValor($this->com_destino_txt))
-//			$filtro .= " and d1.destino like '".$this->com_destino_txt."%'";
-
-//		if ($this->TieneValor($this->id_ubicacion_actual_txt))
-//			$filtro .= " and d2.destino like '".$this->id_ubicacion_actual_txt."%'";
-
-//		if ($this->TieneValor($this->id_aprobacion_txt))
-//			$filtro .= " and ap.aprobacion like '%".$this->id_aprobacion_txt."%'";
-
-			
-		if ($this->TieneValor($this->numero))
-			$filtro .= " and ((numero=".$this->numero." and tipo<>'M') or (nro_municipal='".$this->numero."' and tipo='M'))";
-		
-		if ($this->TieneValor($this->tipo))
-			$filtro .= " and tipo='".$this->tipo."'";
-			
-		if ($this->TieneValor($this->letra))
-			$filtro .= " and letra='".$this->letra."'";
-			
-		if ($this->TieneValor($this->anio))
-			$filtro .= " and anio='".$this->anio."'";
-			
-		if ($this->TieneValor($this->tipo_proy)) 
-			$filtro .= " and tipo_proy='".$this->tipo_proy."'";
-
-		if ($this->TieneValor($this->fec_presentacion_desde))
-			$filtro .= " and fec_presentacion >= '".$this->fec_presentacion_desde."'";
-			
-		if ($this->TieneValor($this->fec_presentacion_hasta))
-			$filtro .= " and fec_presentacion <= '".$this->fec_presentacion_hasta."'";
-			
-		if ($this->TieneValor($this->fec_sesion_desde))
-			$filtro .= " and fec_sesion >= '".$this->fec_sesion_desde."'";
-			
-		if ($this->TieneValor($this->fec_sesion_hasta))
-			$filtro .= " and fec_sesion <= '".$this->fec_sesion_hasta."'";
-			
-		if ($this->TieneValor($this->fec_aprobacion_desde))
-			$filtro .= " and fec_aprobacion >= '".$this->fec_aprobacion_desde."'";
-			
-		if ($this->TieneValor($this->fec_aprobacion_hasta))
-			$filtro .= " and fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
-
-		if ($this->TieneValor($this->id_categoria_txt))
-			$filtro .= " and cat.categoria like '".$this->id_categoria_txt."%'";
-
-		if ($this->TieneValor($this->tags))
-			$filtro .= " and MATCH (tags) AGAINST ('{$this->tags}') ";
-		
-			
-		$sql = "select e.*, cat.categoria, d1.destino as com_destino_txt, d2.destino as id_ubicacion_actual_txt, ap.aprobacion as id_aprobacion_txt, g.grupo, cau.causante as id_causante_txt ".
-			   $match . " " .
 			   "from expedientes e ".
 			   "left join destinos d1 on d1.id_destino=e.com_destino ".
 			   "left join destinos d2 on d2.id_destino=e.id_ubicacion_actual ".
@@ -765,50 +584,10 @@ class Expediente
 			   "left join grupos_impresion g on g.id_grupo=e.id_grupo ".
 			   "left join tags t on t.numero_expediente=e.numero ".
 			   "where 1=1 ".$filtro;
-			   
-		if($match=="")	   
-			$sql .= " order by numero DESC, nro_municipal DESC LIMIT 200";
-		else
-			$sql .= " order by relevancia, numero DESC, nro_municipal DESC LIMIT 200";
 
 		return $sql;
 	}
-	
-	private function parsearCampos($txt, &$error) {
 
-		$txt = trim($txt);
-		$tags = array();
-		$i=0;
-		$error = Array();
-		while($i<strlen($txt)) {
-			if($txt[$i]=='"') {
-				$next = strpos($txt,'"',$i+1);
-				if($next===false) {
-					$error[] = "Error: Falta cerrar comillas.";
-					$tags = Array();
-					break;
-				}
-				
-				$aux = substr($txt,$i+1,$next-$i-1);
-				if($aux!="" && $aux!="+")
-					$tags[] = $aux;
-				$i = $next+2;
-			} else {
-				$next = strpos($txt,' ',$i);
-				if($next===false) {
-					$tags[] = substr($txt,$i,strlen($txt)-$i);	
-					break;
-				}
-				$aux = substr($txt,$i,$next-$i);
-				if($aux!="" && $aux!="+")
-				$tags[] = $aux; 
-				$i = $next+1;
-			}
-		}
-
-		return $tags;
-	}
-	
 
 	public function FiltroReporte()
 	{				
@@ -939,11 +718,6 @@ class Expediente
 		$this->flt_solo_sin_imprimir = $this->ValorPost('flt_solo_sin_imprimir');
 		$this->id_grupo = $this->ValorPost('id_grupo');
 		$this->tags =  $this->ValorPost('tags');
-		$this->decretos =  $this->ValorPost('decretos');
-		//$this->declaraciones =  $this->ValorPost('declaraciones');
-		$this->minutas =  $this->ValorPost('minutas');
-		$this->ordenanzas_y_resoluciones =  $this->ValorPost('ordenanzas_y_resoluciones');
-
 	}
 	
 	
@@ -967,17 +741,11 @@ class Expediente
 			$sql = "INSERT INTO expedientes ".
 				   "(tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
 				   "fec_sesion, com_destino, id_ubicacion_actual, ".
-				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_categoria, impreso, id_grupo, ".
-				   "decretos, ".
-				   //"declaraciones, ".
-				   "minutas, ordenanzas_y_resoluciones) " .
+				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_categoria, impreso, id_grupo) ".
 				   "VALUES ".
 				   "('$this->tipo', '$this->letra', '$this->anio', '$this->nro_municipal', '$this->tipo_proy', '$this->num_mensaje', $this->id_causante, '$this->caratula', $this->fec_presentacion, ".
 				   "$this->fec_sesion, $this->com_destino, $this->id_ubicacion_actual, ".
-				   "$this->fec_aprobacion, $this->id_aprobacion, '$this->tipo_aprobacion', '$this->id_usuario_alta', $this->fec_alta, $this->fec_mod, '$this->agregados', $this->id_categoria, '$this->impreso', $this->id_grupo, ".
-				   "'$this->decretos', ".
-				   //"'$this->declaraciones', ".
-				   "'$this->minutas', '$this->ordenanzas_y_resoluciones')";
+				   "$this->fec_aprobacion, $this->id_aprobacion, '$this->tipo_aprobacion', '$this->id_usuario_alta', $this->fec_alta, $this->fec_mod, '$this->agregados', $this->id_categoria, '$this->impreso', $this->id_grupo)";
 
 			if (!$conn->Execute($sql))
 			{
@@ -991,17 +759,11 @@ class Expediente
 			$sql = "INSERT INTO expedientes_historico ".
 				   "(numero, tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
 				   "fec_sesion, com_destino, id_ubicacion_actual, ".
-				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo, " . 
-				   "decretos, ".
-				   //"declaraciones, ".
-				   "minutas, ordenanzas_y_resoluciones) ".
+				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo) ".
 				   "SELECT ".
 				   "numero, tipo, letra, anio, nro_municipal, tipo_proy, num_mensaje, id_causante, caratula, fec_presentacion, ".
 				   "fec_sesion, com_destino, id_ubicacion_actual, ".
-				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo, ".
-				   "decretos, ".
-				   //"declaraciones, ".
-				   "minutas, ordenanzas_y_resoluciones " . 
+				   "fec_aprobacion, id_aprobacion, tipo_aprobacion, id_usuario_alta, fec_alta, fec_mod, agregados, id_usuario_mod, id_categoria, impreso, id_grupo ".
 				   "from expedientes where numero=$this->numero";
 
 			$conn->Execute($sql);
@@ -1028,13 +790,9 @@ class Expediente
 						   "id_usuario_alta=$this->id_usuario_alta, ".
 						   "id_usuario_mod=$this->id_usuario_mod, ".
 						   "fec_mod=$this->fec_mod, ".
-						   "agregados='$this->agregados', ".
-						   "decretos='$this->decretos', ".
-						   //"declaraciones='$this->declaraciones', ".
-						   "minutas='$this->minutas', ".
-						   "ordenanzas_y_resoluciones='$this->ordenanzas_y_resoluciones' ".
+						   "agregados='$this->agregados' ".
 						   "where numero=$this->numero";
-			
+
 			$registro_nuevo = 0;
 			$conn->Execute($sql);
 			
@@ -1086,17 +844,11 @@ class Expediente
 				$sqlTemp = "INSERT INTO expedientes_legislativos ".
 					"(`numero`, `letra`, `anio`, `num_mensaje`, `tipo_proy`, `fec_presentacion`, `fec_sesion`, `fec_aprobacion`, " .
 					"`caratula`, `tipo_aprobacion`, `id_causante`, `id_causante_txt`, `com_destino`, `com_destino_txt`, `id_aprobacion`, " .
-					"`id_aprobacion_txt`, `id_ubicacion_actual`, `id_ubicacion_actual_txt`, `id_grupo`, `grupo`, `fec_alta`," . 
-				    "decretos, ".
-					//"declaraciones, ".
-					"minutas, ordenanzas_y_resoluciones) ".
+					"`id_aprobacion_txt`, `id_ubicacion_actual`, `id_ubicacion_actual_txt`, `id_grupo`, `grupo`, `fec_alta`) ".
 				   "VALUES ".
 				   "($this->numero, '$this->letra', '$this->anio', '$this->num_mensaje', '$this->tipo_proy', '$this->fec_presentacion', '$this->fec_sesion', '$this->fec_aprobacion', " .    
 					"'$this->caratula', '$this->tipo_aprobacion', '$this->id_causante', '$this->id_causante_txt', '$this->com_destino', '$this->com_destino_txt', '$this->id_aprobacion_txt', " .
-					"'$this->id_aprobacion_txt', '$this->id_ubicacion_actual', '$this->id_ubicacion_actual_txt', '$this->id_grupo', '$this->grupo', '$this->fec_alta', " .
-					"'$this->decretos', ".
-					//"'$this->declaraciones', ". 
-					"'$this->minutas', '$this->ordenanzas_y_resoluciones')";
+					"'$this->id_aprobacion_txt', '$this->id_ubicacion_actual', '$this->id_ubicacion_actual_txt', '$this->id_grupo', '$this->grupo', '$this->fec_alta' ) ";
 			} else {
 				$sqlTemp = "UPDATE expedientes_legislativos SET ".
 						   "letra='$this->letra', " .
@@ -1117,11 +869,7 @@ class Expediente
 						   "id_ubicacion_actual='$this->id_ubicacion_actual', ".
 						   "id_ubicacion_actual_txt='$this->id_ubicacion_actual_txt', ".
 						   "id_grupo='$this->id_grupo', ".
-						   "grupo='$this->grupo', ".
-						   "decretos='$this->decretos', ".
-						  // "declaraciones='$this->declaraciones', ".
-						   "minutas='$this->minutas', ".
-						   "ordenanzas_y_resoluciones='$this->ordenanzas_y_resoluciones' ".
+						   "grupo='$this->grupo' ".
 						   "WHERE numero=$this->numero";
 			}
 			
@@ -1139,17 +887,11 @@ class Expediente
 				$sql = 	"INSERT INTO expedientes_temporal " .
 					"(registro_nuevo, `numero`, `letra`, `anio`, `num_mensaje`, `tipo_proy`, `fec_presentacion`, `fec_sesion`, `fec_aprobacion`, " .
 					"`caratula`, `tipo_aprobacion`, `id_causante`, `id_causante_txt`, `com_destino`, `com_destino_txt`, `id_aprobacion`, " .
-					"`id_aprobacion_txt`, `id_ubicacion_actual`, `id_ubicacion_actual_txt`, `id_grupo`, `grupo`, `fec_alta`, " . 
-					"decretos, ".
-					//"declaraciones, " .
-					"minutas, ordenanzas_y_resoluciones) ".
+					"`id_aprobacion_txt`, `id_ubicacion_actual`, `id_ubicacion_actual_txt`, `id_grupo`, `grupo`, `fec_alta`) ".
 				   "VALUES ".
 				   "($registro_nuevo, $this->numero, '$this->letra', '$this->anio', '$this->num_mensaje', '$this->tipo_proy', '$this->fec_presentacion', '$this->fec_sesion', '$this->fec_aprobacion', " .    
 					"'$this->caratula', '$this->tipo_aprobacion', '$this->id_causante', '$this->id_causante_txt', '$this->com_destino', '$this->com_destino_txt', '$this->id_aprobacion_txt', " .
-					"'$this->id_aprobacion_txt', '$this->id_ubicacion_actual', '$this->id_ubicacion_actual_txt', '$this->id_grupo', '$this->grupo', '$this->fec_alta', " .
-					"'$this->decretos', ".
-					//"'$this->declaraciones', ".
-					"'$this->minutas', '$this->ordenanzas_y_resoluciones')";
+					"'$this->id_aprobacion_txt', '$this->id_ubicacion_actual', '$this->id_ubicacion_actual_txt', '$this->id_grupo', '$this->grupo', '$this->fec_alta' ) ";
 				$conn->Execute($sql);
 				//echo $conn->ErrorMsg();
 			

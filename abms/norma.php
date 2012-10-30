@@ -310,9 +310,11 @@ else
           <tr>
             <td width="151" align="left" class="td1">Tipo de Norma</td>
             <td width="342" align="left" class="td2"><select name="tipo" id="tipo" style="width:204px;">
-                <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
                 <option value="Ord" <? if ($norma->tipo=='Ord') echo 'selected'; ?>>Ordenanza</option>
+                <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
                 <option value="Res" <? if ($norma->tipo=='Res') echo 'selected'; ?>>Resoluci&oacute;n</option>
+                <option value="Com" <? if ($norma->tipo=='Com') echo 'selected'; ?>>Minuta de Comunicaci&oacute;n</option>
+                <option value="Dla" <? if ($norma->tipo=='Dla') echo 'selected'; ?>>Declaraci&oacute;n</option>
               </select>
             </td>
           </tr>
@@ -349,7 +351,6 @@ else
 		</td>
 	  </tr>
 	  
-	  links
 <?php }?>
 
    

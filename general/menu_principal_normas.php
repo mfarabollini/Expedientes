@@ -1,6 +1,6 @@
-<? include('../inc/inicio.inc.php'); ?>
 <?
-
+include('../inc/inicio.inc.php'); ?>
+<?
 
 DesactivarSSL();
 
@@ -14,7 +14,7 @@ else
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<title>Sistema de Gesti&oacute;n Parlamentaria</title>
+<title>Sistema de Gesti&oacuten Parlamentaria</title>
 <link rel="stylesheet" type="text/css" href="../inc/estilo.css">
 <? include('../inc/efecto_transicion.inc.php'); ?>
 
@@ -74,8 +74,8 @@ else
         <td height="30" align="center" valign="middle" class="menu1" onmouseout="Estilo(this, 'menu1');" onmouseover="Estilo(this, 'menu2');" onclick="window.location='busquedaAvanzada.php';">Buscar expediente (Avanzado)</td>
       </tr>
       <? } ?>
-
-
+      
+      
       <? if (PerfilAutorizado('SDI')) { ?>
       <tr>
         <td height="30" align="center" valign="middle" class="menu1" onmouseout="Estilo(this, 'menu1');" onmouseover="Estilo(this, 'menu2');" onclick="window.location='reporte_expedientes.php';">Reporte de expedientes</td>
@@ -120,7 +120,7 @@ else
 
       <? if (PerfilAutorizado('SIA')) { ?>
       <tr>
-        <td height="30" align="center" valign="middle" class="menu1" onmouseout="Estilo(this, 'menu1');" onmouseover="Estilo(this, 'menu2');" onclick="window.location='auditoria.php';">Listado de auditor�a</td>
+        <td height="30" align="center" valign="middle" class="menu1" onmouseout="Estilo(this, 'menu1');" onmouseover="Estilo(this, 'menu2');" onclick="window.location='auditoria.php';">Listado de auditor&iacute;a</td>
       </tr>
       <? } ?>
       
