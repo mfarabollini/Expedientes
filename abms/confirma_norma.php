@@ -44,7 +44,7 @@
   <tr>
     <td height="440" align="center" valign="middle" class="contenido"><table width="400" height="139" border="0" cellpadding="1" cellspacing="1">
       <tr>
-        <td align="center" class="td1">Se grabado correctamente la Norma N&ordm; <?=number_format($_GET['numero'], 0, ',', '.');?>
+        <td align="center" class="td1">Se grabado correctamente la Norma N&ordm; <?=$_GET['numero'];?>
           <br />
           <br />
 	       <input type="button" name="btnVolver" id="btnVolver" value="Volver al men&uacute;" onclick="Volver();" />

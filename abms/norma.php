@@ -29,7 +29,7 @@ if (isset($_GET['accion']))
 	{
 		CheckPerfiles('SDJI');
 		$numero = $_GET['numero'];
-		$numero_txt = number_format($_GET['numero'], 0, ',', '.');
+		$numero_txt = $_GET['numero'];
 		$norma->CargarNorma($numero);
 		if($_SESSION['perfil'] == 'J')
 			$onload = 'onload="DisabledInputs();"';
@@ -55,11 +55,11 @@ if (isset($_GET['accion']))
 	{
 		CheckPerfiles('SDOJI');
 
-		if($_SESSION['perfil'] == 'J')
+		if($_SESSION['perfil'] == 'J'){
 			$norma->GrabarTags();
-		else
+		}else{
 			$norma->GrabarPost();
-			
+		}	
 		header("Location: confirma_norma.php?numero=".$norma->numero."&accion=".$_POST['accion_anterior']);
 	}
 	
@@ -321,9 +321,9 @@ else
             <td width="342" align="left" class="td2"><strong>
  	                       
               <? if ($_GET['accion'] == 'editar') { ?>
-              		<input id="numero" name="numero" type="hidden" value="<?=$numero?>" />
+              		<input id="numero" name="numero" type="text" value="<?=$numero?>" />
               <? } else { ?>
-              		<input id="numero" name="numero" type="hidden" value="" />
+              		<input id="numero" name="numero" type="text" value="" />
               <? } ?>
             </strong></td>
           </tr>
@@ -332,11 +332,11 @@ else
             <td width="342" align="left" class="td2">		  
 			  <select name="tipo" id="tipo" style="width:204px;">          
 			  	<option value="null">[Elegir...]</option>';  
-                <option value="Ord" <? if ($norma->tipo=='Ord') echo 'selected'; ?>>Ordenanza</option>
-                <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
-                <option value="Res" <? if ($norma->tipo=='Res') echo 'selected'; ?>>Resoluci&oacute;n</option>
-                <option value="Com" <? if ($norma->tipo=='Com') echo 'selected'; ?>>Minuta de Comunicaci&oacute;n</option>
-                <option value="Dla" <? if ($norma->tipo=='Dla') echo 'selected'; ?>>Declaraci&oacute;n</option>
+                <option value="ORD" <? if ($norma->tipo=='ORD') echo 'selected'; ?>>Ordenanza</option>
+                <option value="DEC" <? if ($norma->tipo=='DEC') echo 'selected'; ?>>Decreto</option>
+                <option value="RES" <? if ($norma->tipo=='RES') echo 'selected'; ?>>Resoluci&oacute;n</option>
+                <option value="COM" <? if ($norma->tipo=='COM') echo 'selected'; ?>>Minuta de Comunicaci&oacute;n</option>
+                <option value="DLA" <? if ($norma->tipo=='DLA') echo 'selected'; ?>>Declaraci&oacute;n</option>
               </select>
             </td>
           </tr>

@@ -16,59 +16,12 @@ $existe = $normas->CargarNorma($numero);
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<title>Sistema de Gestión Parlamentaria</title>
+<title>Sistema de Gesti&oacute;n Parlamentaria</title>
 <link rel="stylesheet" type="text/css" href="../inc/estilo.css">
 
 <? include('../inc/efecto_transicion.inc.php'); ?>
 
 <script language="javascript">
-
-	function ActualizaProyecto(tipo)
-	{
-		var oTR_fec_sesio = document.getElementById('tr_fec_sesion');
-		var oTR_caratula = document.getElementById('tr_caratula');
-		var oTR_tipo_proy = document.getElementById('tr_tipo_proy');
-		var oTR_num_mensaje = document.getElementById('tr_num_mensaje');
-		var oTR_com_destino = document.getElementById('tr_com_destino');
-		var oTR_id_ubicacion_actual = document.getElementById('tr_id_ubicacion_actual');
-		var oTR_tr_tipo_aprobacion = document.getElementById('tr_tipo_aprobacion');
-		var oTR_tr_fec_aprobacion = document.getElementById('tr_fec_aprobacion');
-		
-				 
-		oTR_fec_sesio.style.display = 'none';
-		oTR_caratula.style.display = 'none';
-		oTR_tipo_proy.style.display = 'none';
-		oTR_num_mensaje.style.display = 'none';
-		oTR_com_destino.style.display = 'none';
-		oTR_id_ubicacion_actual.style.display = 'none';
-		oTR_tr_tipo_aprobacion.style.display = 'none';
-		oTR_tr_fec_aprobacion.style.display = 'none';
-
-		
-		if (tipo == 'I')
-		{
-			oTR_caratula.style.display = '';
-			oTR_id_ubicacion_actual.style.display = '';
-			oTR_com_destino.style.display = '';
-		}
-
-		if (tipo == 'M')
-		{
-			oTR_caratula.style.display = '';
-			oTR_id_ubicacion_actual.style.display = '';
-			oTR_com_destino.style.display = '';
-		}
-
-		if (tipo == 'L')
-		{
-			oTR_fec_sesio.style.display = '';
-			oTR_tipo_proy.style.display = '';
-			oTR_num_mensaje.style.display = '';
-			oTR_com_destino.style.display = '';
-			oTR_id_ubicacion_actual.style.display = '';
-			oTR_caratula.style.display = '';
-		}
-	}
 	
 	function TamScreen()
 	{
@@ -110,7 +63,7 @@ $existe = $normas->CargarNorma($numero);
     
 	if (!$existe)
 	{
-		echo '<br><br><br><br><br><span class="texto_encabezado">El expediente no existe en la base de datos</span><br><br><br>';
+		echo '<br><br><br><br><br><span class="texto_encabezado">La Norma no existe en la base de datos</span><br><br><br>';
 	}
 	else
 	{
@@ -123,7 +76,7 @@ $existe = $normas->CargarNorma($numero);
       <tr>
         <td align="right" nowrap="nowrap" class="td2"><strong>
           <?	  
-	 	    echo $normas->NumeroFormateado();
+	 	   echo $normas->numero;
 		  ?>
 &nbsp;        </strong></td>
 
@@ -142,18 +95,23 @@ $existe = $normas->CargarNorma($numero);
             <td width="342" align="left" class="td2">
             <? switch ($normas->tipo){
 					case 'ORD':
+						$prefijo = 'O-';
 						echo 'Ordenanza';
 						break;		
 					case 'DEC':
+						$prefijo = 'D-';
 						echo 'Decreto';
 						break;
 					case 'RES':
+						$prefijo = 'R-';
 						echo 'Resoluci&oacute;n';
 						break;
 					case 'COM':
+						$prefijo = 'M-';
 						echo 'Minuta de Comunicaci&oacute;n';
 						break;
 					case 'DLA':
+						$prefijo = 'L-';
 						echo 'Declaraci&oacute;n';
 						break;
 				}
@@ -188,7 +146,6 @@ $existe = $normas->CargarNorma($numero);
 					 	echo "<a href='ver_norma.php?numero=".$modifica[$i]."'>Norma ".$modifica[$i]."</a>";
 						if (($i+2) < sizeof($modifica)) {echo ', ';}
 					}
-					
 			?>
             <br><br>
             </div>            </td>
@@ -207,54 +164,27 @@ $existe = $normas->CargarNorma($numero);
               <tr class="td1">
                 <td align="left">
                 <?
-	                if (file_exists(realpath('../pdf/'.$numero.'.pdf')))
-						echo '<a target="_blank" href="../pdf/'.$numero.'.pdf">'.$numero.'.pdf</a>';
+	                if (file_exists(realpath('../pdf/'.$prefijo.$numero.'.pdf')))
+						echo '<a target="_blank" href="../pdf/'.$prefijo.$numero.'.pdf">'.$prefijo.$numero.'.pdf</a>';
 				?>
                 </td>
                 <td align="left">
                   <?
-            	$tipo_aprobacion = utf8($expediente->tipo_aprobacion);
-				$vec_aprob = array();
-				
-				$indice = -1;				
-				$llenando = false;
-				for ($i=0; $i < strlen($tipo_aprobacion); $i++)
-				{
-					if (!(strpos("0123456789.,", $tipo_aprobacion[$i]) === false))
-					{
-						if (!$llenando)
-						{
-							$llenando = true;
-							$indice++;
-							$vec_aprob[$indice] = '';
-						}
-						
-						if (!(strpos("0123456789", $tipo_aprobacion[$i]) === false))
-							$vec_aprob[$indice] .= $tipo_aprobacion[$i];
-					}
-					else
-					{
-						$llenando = false;
-					}
-				}
-				
-				
-				$documentos = '';
-				if (sizeof($vec_aprob) > 0)
-				{
-					foreach ($vec_aprob as $value)
-					{
-						if (file_exists(realpath('../pdf/'.$value.'.pdf')))
-							$documentos .= '<a target="_blank" href="../pdf/'.$value.'.pdf">'.$value.'.pdf</a>, ';
-						else
-							$documentos .= '<a href="javascript: alert('."'".'No se ha digitalizado todavia el documento'."'".');">'.$value.'.pdf</a>, ';
-					}
-				}
-				
-				if ($documentos != '')
-					echo substr($documentos, 0, strlen($documentos)-2);
-			?>
-                </td>
+                  
+                  for ($i=0; $i < sizeof($modifica); $i++){
+                  	if ($modifica[$i] != ''){
+                  		$prefijo = $normas->VerificarModif($modifica[$i]); 
+                  		if (file_exists(realpath('../pdf/'.$prefijo.$modifica[$i].'.pdf'))){
+							echo '<a target="_blank" href="../pdf/'.$prefijo.$modifica[$i].'.pdf">'.$prefijo.$modifica[$i].'.pdf</a>';	
+							if (($i+2) < sizeof($modifica)) {
+								echo ', ';
+							}					
+                  		}
+                  	}	
+
+                  }
+                  ?>
+                 </td>
                 </tr>
             </table>
             </td>

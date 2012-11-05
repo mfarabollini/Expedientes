@@ -5,7 +5,8 @@ include('../inc/conexion.inc.php');
 class Normas
 {
 	public $numero;
-	public $tipo; //I=INTERNOS  M=MUNICIPALES  L=LEGISLATIVOS'
+	public $numero_ext;
+	public $tipo; 
 	public $fec_aprobacion;
 	public $descripcion;
 	
@@ -14,33 +15,10 @@ class Normas
 	
     public $tags;
 	
-	public $lista1;
-	public $lista2;
-	public $lista3;
-	public $lista4;
-	public $lista5;
-	public $lista6;
-	public $lista7;
-	public $lista8;
-	public $lista9;
-	public $lista10;
-	public $lista11;
-	//public $lista12;
 	
-	
-	// muestra el numero formateado
-	public function NumeroFormateado()
-	{
-		return number_format($this->numero, 0, ',', '.');
-	}
-	
-	// verifica que exista o no ese numero de expediente
+	// verifica que exista o no ese numero de norma
 	public function VerifNumero($pNumero)
 	{
-		$pNumero = trim($pNumero);
-		$pNumero = str_replace('.', '', $pNumero);
-		$pNumero = str_replace(',', '', $pNumero);
-		$pNumero = str_replace('-', '', $pNumero);
 
 		if ($pNumero != '')
 		{
@@ -69,26 +47,12 @@ class Normas
 	private function InicializarValores()
 	{
 		$this->numero = '';
+		$this->numero_ext = '';
 		$this->tipo = 'null';
 		$this->descripcion = '';
 		$this->fec_aprobacion = '';
 		$this->modifica = '';		
 		$this->modifica_txt = '';		
-	
-		$this->lista1 = 'GOBIERNO Y CULTURA';
-		$this->lista2 = 'PRESUPUESTO Y HACIENDA';
-		$this->lista3 = 'OBRAS PUBLICAS';
-		$this->lista4 = 'SEGURIDAD PUBLICA Y COMUNITARIA';
-		$this->lista5 = 'SALUD Y ACCION SOCIAL';
-		$this->lista6 = 'PLANEAMIENTO Y URBANISMO';
-		$this->lista7 = 'SERVICIOS PUBLICOS CONCEDIDOS';
-		$this->lista8 = 'PRODUCCION Y PROMOCION DEL EMPLEO';
-		$this->lista9 = 'ECOLOGIA Y MEDIO AMBIENTE';
-		$this->lista10 = 'DERECHOS HUMANOS';	
-		$this->lista11 = 'PRESIDENCIA';		
-		//$this->lista12 = 'PRESUPUESTO, HACIENDA Y OBRAS';	
-
-
 	}
 
 
@@ -98,74 +62,10 @@ class Normas
 	}
 
 
-	//Funci�n que de acuerdo a la primer palabra de la comisi�n ,obtenida desde mysql,
-	//asigna un valor de t�tulo que corresponda
-	public function CargaTituloExp($comisionBD)
-	{
-
-		$arrCom = substr($comisionBD,0,5);
-		$arrC1 = substr($this->lista1,0,5);
-		$arrC2 = substr($this->lista2,0,5);
-		$arrC3 = substr($this->lista3,0,5);				
-		$arrC4 = substr($this->lista4,0,5);
-		$arrC5 = substr($this->lista5,0,5);
-		$arrC6 = substr($this->lista6,0,5);
-		$arrC7 = substr($this->lista7,0,5);
-		$arrC8 = substr($this->lista8,0,5);
-		$arrC9 = substr($this->lista9,0,5);
-		$arrC10 = substr($this->lista10,0,5);
-  		$arrC11 = substr($this->lista11,0,5);
-																
-	
-		//$arrC1 = split(" ",$this->lista1);
-		//$arrC2 = split(" ",$this->lista2);
-		//$arrC3 = split(" ",$this->lista3);
-		//$arrC4 = split(" ",$this->lista4);
-		//$arrC5 = split(" ",$this->lista5);
-		//$arrC6 = split(" ",$this->lista6);
-		//$arrC7 = split(" ",$this->lista7);
-		//$arrC8 = split(" ",$this->lista8);
-		//$arrC9 = split(" ",$this->lista9);
-		//$arrC10 = split(" ",$this->lista10);
-		//$arrC11 = split(" ",$this->lista11);
-		//$arrC12 = split(" ",$this->lista12);
-		
-			if (strcmp(strtoupper($arrCom),strtoupper($arrC1)) == 0)
-				$titulo = $this->lista1;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC2)) == 0)	
-				$titulo = $this->lista2;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC3)) == 0)	
-				$titulo = $this->lista3;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC4)) == 0)	
-				$titulo = $this->lista4;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC5)) == 0)	
-				$titulo = $this->lista5;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC6)) == 0)	
-				$titulo = $this->lista6;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC7)) == 0)	
-				$titulo = $this->lista7;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC8)) == 0)	
-				$titulo = $this->lista8;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC9)) == 0)	
-				$titulo = $this->lista9;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC10)) == 0)	
-				$titulo = $this->lista10;
-			elseif (strcmp(strtoupper($arrCom),strtoupper($arrC11)) == 0)	
-				$titulo = $this->lista11;
-			//elseif (strcmp(strtoupper($arrCom),strtoupper($arrC12)) == 0)	
-				//$titulo = $this->lista12;
-			else
-				$titulo = "Sin Titulo";																							
-
-		return $titulo;
-	}
-
-
 	public function CargarNorma($nro_norma)
 	{
-		if (is_numeric($nro_norma))
 
-		{
+
 			global $conn;
 			$sql;
 			$rs;
@@ -173,7 +73,7 @@ class Normas
 			$sql = "select n.*, t.tags as tags ".
 			   "from normas n ".
 			   "left join tags_normas t on t.nro_norma = n.nro_norma ".
-			   "where n.nro_norma=$nro_norma";
+			   "where n.nro_norma='$nro_norma'";
 			   
 		$rs = $conn->Execute($sql);
 		
@@ -193,10 +93,7 @@ class Normas
 			return true;
 		}
 	}
-	
-		else
-			return false;
-	}
+
 	
 	public function FiltroBuscar()
 	{				
@@ -406,7 +303,7 @@ class Normas
 
 						
 		if ($this->TieneValor($this->numero))
-			$filtro .= " and n.nro_norma=".$this->numero." ";
+			$filtro .= " and n.nro_norma='".$this->numero."'";
 			
 		if ($this->TieneValor($this->tipo))
 			$filtro .= " and n.tipo_norma='".$this->tipo."'";
@@ -421,7 +318,7 @@ class Normas
 			$filtro .= " and n.fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
 								
 		if ($this->TieneValor($this->tags))
-			$filtro .= " and MATCH (t.tags) AGAINST ('{$this->tags}') ";
+			$filtro .= " and MATCH (t.tags) AGAINST ('{$this->tags}' IN boolean mode) ";
 		
 		$sql = "select n.*, t.tags as tags ".
 			   "from normas n ".
@@ -554,20 +451,19 @@ class Normas
 		$conn->StartTrans();
 		$registro_nuevo = 1;	
 		//hago un insert o un update dependiendo de si tengo cargado uno o no
-		if ($this->numero == '' || $this->numero == 'null')
+		if ($_POST['accion_anterior']!='editar')
 		{
 			$this->fec_alta = "'".date('Y-m-d H:i:s')."'";
 
 			$sql = "INSERT INTO normas ".
-				   "(tipo_norma, fec_aprob, dsc_norma, modifica, id_usuario_alta, fec_alta) ".
+				   "(nro_norma, tipo_norma, fec_aprob, dsc_norma, modifica, id_usuario_alta, fec_alta) ".
 				   "VALUES ".
-				   "('$this->tipo', $this->fec_aprobacion, '$this->descripcion','$this->modifica', '$this->id_usuario_alta', $this->fec_alta)";
+				   "('$this->numero','$this->tipo', $this->fec_aprobacion, '$this->descripcion','$this->modifica', '$this->id_usuario_alta', $this->fec_alta)";
 
 			if (!$conn->Execute($sql))
 			{
 				echo $conn->ErrorMsg();
 			}
-			$this->numero = $conn->Insert_ID();
 		}
 		else
 		{
@@ -577,10 +473,10 @@ class Normas
 						   "tipo_norma='$this->tipo', ".
 						   "fec_aprob=$this->fec_aprobacion, ".
 						   "dsc_norma='$this->descripcion', ".
-						   "modifica='$this->modifica' ".						   
+						   "modifica='$this->modifica', ".						   
 						   "id_usuario_mod=$this->id_usuario_mod, ".
-						   "fec_mod=$this->fec_mod, ".
-						   "where numero=$this->numero";
+						   "fec_mod=$this->fec_mod ".
+						   "where nro_norma='$this->numero'";
 
 			$registro_nuevo = 0;
 			$conn->Execute($sql);
@@ -599,10 +495,11 @@ class Normas
 		$conn->StartTrans();
 
 		$this->fec_mod = "'".date('Y-m-d H:i:s')."'";
+		$this->id_usuario_mod = $_SESSION['id_usuario'];
 		$sql = "UPDATE normas SET ".
 						   "id_usuario_mod=$this->id_usuario_mod, ".
-						   "fec_mod=$this->fec_mod, ".
-						   "where numero=$this->numero";
+						   "fec_mod=$this->fec_mod ".
+						   "where nro_norma=$this->numero";
 		$conn->Execute($sql);
 
 		$this->guardarTags();
@@ -900,9 +797,45 @@ class Normas
 			}
 			
 			if(strlen($tagSave)>0) {
-				$sql = "INSERT INTO `tags_normas` (`nro-norma`, `tags`) VALUES ({$this->numero}, '{$tagSave}')";
+				$sql = "INSERT INTO `tags_normas` (`nro_norma`, `tags`) VALUES ({$this->numero}, '{$tagSave}')";
 				$rs = $conn->Execute($sql);
 			}
+		}
+	}
+	public function VerificarModif($normaModif){
+		
+		global $conn;
+		$sql;
+		$rs;
+		
+		$sql = "select tipo_norma ".
+				"from normas ".
+				"where nro_norma='$normaModif'";
+		
+		$rs = $conn->Execute($sql);
+		
+		if ($rs->EOF)
+		{
+			return false;
+		}else{
+			switch ($rs->fields['tipo_norma']){
+				case 'ORD':
+					return 'O-';
+					break;
+				case 'DEC':
+					return 'D-';
+					break;
+				case 'RES':
+					return 'R-';
+					break;
+				case 'COM':
+					return 'M-';
+					break;
+				case 'DLA':
+					return 'L-';
+					break;
+			}
+			
 		}
 	}
 }

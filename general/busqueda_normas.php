@@ -36,9 +36,7 @@ if (isset($_GET['accion']))
 	{
 		header ("content-disposition: attachment;filename=Resultado_busqueda.pdf");
 
-		$rs_busq = $conn->Execute($expediente->SqlBuscar());
-		
-		Auditoria('null', 'Imprimio busqueda con filtro:<br>'.$expediente->FiltroBuscar());
+		$rs_busq = $conn->Execute($norma->SqlBuscar());
 		
 		$pdf =& new Cezpdf('LEGAL', 'landscape');
 		$pdf->selectFont('../inc/pdf/fonts/Helvetica.afm');
@@ -52,7 +50,7 @@ if (isset($_GET['accion']))
 		$pdf->addInfo($datacreator);
 		
 		//titulo
-		$pdf->ezText(utf8_dec("CONCEJO MUNICIPAL DE ROSARIO\n\nSistema de Gesti贸n Parlamentaria")."\n",15, array('justification'=>'center'));
+		$pdf->ezText(utf8_dec("CONCEJO MUNICIPAL DE ROSARIO\n\nSistema de Gesti髇 Parlamentaria")."\n",15, array('justification'=>'center'));
 		$pdf->ezText("");
 		$pdf->ezText(utf8_dec2("Fecha de la consulta: ".date('d/m/Y')."                    Hora de la consulta: ".date('H:i:s')),10, array('justification'=>'center'));
 		$pdf->ezText(utf8_dec2("---------------------------------------------------------------------------------------------------------------------------------------------------------"),10, array('justification'=>'center'));
@@ -65,14 +63,28 @@ if (isset($_GET['accion']))
 		$pos = 0;
 		while (!$rs_busq->EOF)
 		{
-			$vec[$pos][utf8_dec('N鷐ero')] = number_format($rs_busq->fields['numero'], 0, ',', '.');
-			$vec[$pos][utf8_dec('Tipo de Proyecto')] = utf8($rs_busq->fields['tipo_proy']);
-			$vec[$pos][utf8_dec('Fecha presentacion')] = utf8(FormatoFechaNormal($rs_busq->fields['fec_presentacion']));
-			$vec[$pos][utf8_dec('Fecha de Aprobaci贸n')] = utf8(FormatoFechaNormal($rs_busq->fields['fec_aprobacion']));
-			$vec[$pos][utf8_dec('Tipo de Aprobaci贸n')] = utf8($rs_busq->fields['tipo_aprobacion']);
-			$vec[$pos][utf8_dec('Caratula')] = utf8($rs_busq->fields['caratula']);
-			$vec[$pos][utf8_dec('Causante')] = utf8($rs_busq->fields['id_causante_txt']);
-			$vec[$pos][utf8_dec('Ubicaci贸n actual')] = utf8($rs_busq->fields['id_ubicacion_actual_txt']);
+			$vec[$pos][utf8_dec('Numero')] = number_format($rs_busq->fields['nro_norma'], 0, ',', '.');
+			
+			switch ($rs_busq->fields['tipo_norma']){
+				case 'ORD':
+					$vec[$pos][utf8_dec('Tipo de Norma')] = 'Ordenanza';
+					break;
+				case 'DEC':
+					$vec[$pos][utf8_dec('Tipo de Norma')] = 'Decreto';
+					break;
+				case 'RES':
+					$vec[$pos][utf8_dec('Tipo de Norma')] = 'Resoluci&oacute;n';
+					break;
+				case 'COM':
+					$vec[$pos][utf8_dec('Tipo de Norma')] = 'Minuta de Comunicaci&oacute;n';
+					break;
+				case 'DLA':
+					$vec[$pos][utf8_dec('Tipo de Norma')] = 'Declaraci&oacute;n';
+					break;
+			}
+			
+			$vec[$pos][utf8_dec('Fecha de Aprobacion')] = utf8(FormatoFechaNormal($rs_busq->fields['fec_aprob']));
+			$vec[$pos][utf8_dec('Descripcion')] = utf8($rs_busq->fields['dsc_norma']);
 
 			$pos++;
 			$rs_busq->MoveNext();
@@ -80,14 +92,10 @@ if (isset($_GET['accion']))
 		
 
 		$opciones_columnas = array(
-			utf8_dec('N煤mero') => array('width'=>50), 
-			utf8_dec('Tipo de Proyecto') => array('width'=>70),
-			utf8_dec('Fecha ingreso') => array('width'=>53),
-			utf8_dec('Fecha de Aprobaci贸n') => array('width'=>53),
-			utf8_dec('Tipo de Aprobaci贸n') => array('width'=>135),
-			utf8_dec('Caratula') => array('width'=>220),
-			utf8_dec('Causante') => array('width'=>220),
-			utf8_dec('Ubicaci贸n actual') => array('width'=>110)
+			utf8_dec('Numero') => array('width'=>50), 
+			utf8_dec('Tipo de Norma') => array('width'=>150),
+			utf8_dec('Fecha de Aprobacion') => array('width'=>53),
+			utf8_dec('Descripcion') => array('width'=>400),
 		);
 		
 		$pdf->ezTable($vec, '', '', array('colGap'=>1 ,'cols'=>$opciones_columnas));
@@ -118,9 +126,9 @@ if (isset($_GET['accion']))
 	{
 		with (document.form1)
 		{
-			if (numero.value == "" && tipo.value == "" && anio.value == "" && 
-				xfec_aprobacion_desde.value == "" &&
-				xfec_aprobacion_hasta.value == "")
+			if (numero.value == "" && 
+				tipo.value == "" && 
+				descripcion.value == "")
 			{
 				alert("Debe elegir al menos un criterio.");
 				return false;
@@ -163,9 +171,12 @@ if (isset($_GET['accion']))
 	
 	function GenerarPDF(norma)
 	{
+
 		with (document.form_pdf)
 		{
+
 			numero.value = norma;
+			tipo_doc.value = 'norma';
 			submit();
 		}
 	}
@@ -214,11 +225,11 @@ if (isset($_GET['accion']))
             <td width="204" align="left" class="td2">
 			  <select name="tipo" id="tipo" style="width:204px;">      
 			  	<option value="">- Elegir -</option>    
-                <option value="Ord" <? if ($norma->tipo=='Ord') echo 'selected'; ?>>Ordenanza</option>
-                <option value="Dec" <? if ($norma->tipo=='Dec') echo 'selected'; ?>>Decreto</option>
-                <option value="Res" <? if ($norma->tipo=='Res') echo 'selected'; ?>>Resoluci&oacute;n</option>
-                <option value="Com" <? if ($norma->tipo=='Com') echo 'selected'; ?>>Minuta de Comunicaci&oacute;n</option>
-                <option value="Dla" <? if ($norma->tipo=='Dla') echo 'selected'; ?>>Declaraci&oacute;n</option>
+                <option value="ORD" <? if ($norma->tipo=='ORD') echo 'selected'; ?>>Ordenanza</option>
+                <option value="DEC" <? if ($norma->tipo=='DEC') echo 'selected'; ?>>Decreto</option>
+                <option value="RES" <? if ($norma->tipo=='RES') echo 'selected'; ?>>Resoluci&oacute;n</option>
+                <option value="COM" <? if ($norma->tipo=='COM') echo 'selected'; ?>>Minuta de Comunicaci&oacute;n</option>
+                <option value="DLA" <? if ($norma->tipo=='DLA') echo 'selected'; ?>>Declaraci&oacute;n</option>
               </select>
             </td>
           </tr>
@@ -288,25 +299,30 @@ if (isset($_GET['accion']))
 			<tr class="<?=$clase?>">
 			  <td align="right">
 			  <?
-		        	echo number_format($rs_busq->fields['nro_norma'], 0, ',', '.');
+		        	echo $rs_busq->fields['nro_norma'];
 			  ?>
               </td>
 			  <td align="left">
 			  
 				<? switch ($rs_busq->fields['tipo_norma']){
 					case 'ORD':
+						$prefijo = 'O-';
 						echo 'Ordenanza';
 						break;		
 					case 'DEC':
+						$prefijo = 'D-';
 						echo 'Decreto';
 						break;
 					case 'RES':
+						$prefijo = 'R-';
 						echo 'Resoluci&oacute;n';
 						break;
 					case 'COM':
+						$prefijo = 'M-';
 						echo 'Minuta de Comunicaci&oacute;n';
 						break;
 					case 'DLA':
+						$prefijo = 'L-';
 						echo 'Declaraci&oacute;n';
 						break;
 				}
@@ -317,14 +333,14 @@ if (isset($_GET['accion']))
 			  <td align="right"><?=FormatoFecha($rs_busq->fields['fec_aprob'])?></td>
 			  <td align="left"><?=utf8($rs_busq->fields['dsc_norma'])?></td>
 			  <td align="center" nowrap="nowrap">
-              <a href="ver_norma.php?numero=<?=$rs_busq->fields['nro_norma']?>" target="_blank"><img src="../imagenes/ver.gif" alt="Ver expediente" width="28" height="16" border="0" /></a>
+              <a href="ver_norma.php?numero=<?=$rs_busq->fields['nro_norma']?>" target="_blank"><img src="../imagenes/ver.gif" alt="Ver Norma" width="28" height="16" border="0" /></a>
               <? if ($_SESSION['perfil'] == 'D' || $_SESSION['perfil'] == 'S' || $_SESSION['perfil'] == 'J' || ($_SESSION['perfil'] == 'T' && $rs_busq->fields['tipo'] == 'I' )){ ?>
                   &nbsp;&nbsp;
-                  <a href="javascript: Editar(<?=$rs_busq->fields['nro_norma']?>);"><img src="../imagenes/editar.gif" alt="Editar expediente" width="20" height="16" border="0" /></a>
+                  <a href="javascript: Editar('<?=$rs_busq->fields['nro_norma']?>');"><img src="../imagenes/editar.gif" alt="Editar Norma" width="20" height="16" border="0" /></a>
               <? } ?>
               <? if ($_SESSION['perfil'] != 'C' && $_SESSION['perfil'] != 'U' && $_SESSION['perfil'] != 'E' && $_SESSION['perfil'] != 'T' && $_SESSION['perfil'] != 'A'){ ?>
                   &nbsp;&nbsp;
-                  <a href="javascript: GenerarPDF(<?=$rs_busq->fields['nro_norma']?>);"><img src="../imagenes/pdf.gif" alt="Generar PDF" width="16" height="16" border="0" /></a></td>
+                  <a href="javascript: GenerarPDF('<?=$rs_busq->fields['nro_norma']?>');"><img src="../imagenes/pdf.gif" alt="Generar PDF" width="16" height="16" border="0" /></a></td>
               <? } ?>
 			</tr>
 		<? 
@@ -434,6 +450,7 @@ if (isset($_GET['accion']))
 <div style="display: none">
 <form action="generar_pdf.php" method="post" name="form_pdf" id="form_pdf" target="_blank">
 	<input id="numero" name="numero" type="hidden" value="" />
+	<input id="tipo_doc" name="tipo_doc" type="hidden" value="" />
 </form>
 </div>
 </body>
