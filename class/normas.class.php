@@ -17,7 +17,7 @@ class Normas
 	
 	
 	// verifica que exista o no ese numero de norma
-	public function VerifNumero($pNumero)
+	public function VerifNumero($pNumero,$pTipo)
 	{
 
 		if ($pNumero != '')
@@ -26,7 +26,7 @@ class Normas
 			$sql;
 			$rs;
 			
-			$sql = "select nro_norma from normas where nro_norma=$pNumero";
+			$sql = "select nro_norma from normas where nro_norma=$pNumero and tipo_norma='$pTipo'";
 			if (!($rs = $conn->Execute($sql)))
 			{
 				return 'N';
@@ -820,19 +820,19 @@ class Normas
 		}else{
 			switch ($rs->fields['tipo_norma']){
 				case 'ORD':
-					return 'O-';
+					return 'O';
 					break;
 				case 'DEC':
-					return 'D-';
+					return 'D';
 					break;
 				case 'RES':
-					return 'R-';
+					return 'R';
 					break;
 				case 'COM':
-					return 'M-';
+					return 'M';
 					break;
 				case 'DLA':
-					return 'L-';
+					return 'L';
 					break;
 			}
 			

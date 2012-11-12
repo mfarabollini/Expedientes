@@ -38,7 +38,7 @@ if (isset($_GET['accion']))
 
 	if ($accion == 'verif_numero') 
 	{
-		echo $norma->VerifNumero($_GET['numero']);
+		echo $norma->VerifNumero($_GET['numero'],$_GET['tipo']);
 		exit;
 	}
 	
@@ -193,12 +193,16 @@ else
 
 	function AgregarNormaMod()
 	{
-		var oCombo = document.getElementById('modifica');		
+		var oCombo = document.getElementById('modifica');
+		var oTipo = document.getElementById('tipoNormaModif'); 		
 		var oNumero = document.getElementById('numero');		
 		var oNorma = document.getElementById('txt_agregar');	
 
 		if (oNorma.value=='') {
 			alert('Debe elegir una norma.');
+		}
+		if (oTipo.value == 'null') {
+			alert('Debe elegir un tipo de norma');
 		}
 		else {
 			
@@ -215,7 +219,7 @@ else
 					var oAjax = nuevoAjax();
 					var ret;
 					
-					oAjax.open("GET", "norma.php?accion=verif_numero&numero="+oNorma.value,true);
+					oAjax.open("GET", "norma.php?accion=verif_numero&numero="+oNorma.value+"&tipo="+oTipo.value,true);
 					oAjax.onreadystatechange=function() {
 						if (oAjax.readyState=='4' || oAjax.readyState=="complete") {
 							ret = oAjax.responseText;
@@ -228,6 +232,7 @@ else
 								
 								sortSelect(oCombo);
 								oNorma.value = '';
+								oTipo.value = 'null';
 							}
 						}
 					}
@@ -395,6 +400,14 @@ else
 			?>
               </select>            </td>
             <td width="50%" align="left" valign="middle" class="td2">
+            	<select name="tipoNormaModif" id="tipoNormaModif" style="width:186px;">          
+				  	<option value="null">[Elegir...]</option>';  
+	                <option value="ORD">Ordenanza</option>
+	                <option value="DEC">Decreto</option>
+	                <option value="RES">Resoluci&oacute;n</option>
+	                <option value="COM">Minuta de Comunicaci&oacute;n</option>
+	                <option value="DLA">Declaraci&oacute;n</option>
+              	</select>
             	<input type="text" name="txt_agregar" id="txt_agregar" style="width:120px;" value=""  />
                 <input type="button" name="btnAgregar" id="btnAgregar" value="Agregar" onclick="AgregarNormaMod();" />
                 <input type="hidden" name="txt_agregar_id" id="txt_agregar_id" value="" />

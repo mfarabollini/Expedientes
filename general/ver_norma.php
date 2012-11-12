@@ -95,23 +95,23 @@ $existe = $normas->CargarNorma($numero);
             <td width="342" align="left" class="td2">
             <? switch ($normas->tipo){
 					case 'ORD':
-						$prefijo = 'O-';
+						$prefijo = 'O';
 						echo 'Ordenanza';
 						break;		
 					case 'DEC':
-						$prefijo = 'D-';
+						$prefijo = 'D';
 						echo 'Decreto';
 						break;
 					case 'RES':
-						$prefijo = 'R-';
+						$prefijo = 'R';
 						echo 'Resoluci&oacute;n';
 						break;
 					case 'COM':
-						$prefijo = 'M-';
+						$prefijo = 'M';
 						echo 'Minuta de Comunicaci&oacute;n';
 						break;
 					case 'DLA':
-						$prefijo = 'L-';
+						$prefijo = 'L';
 						echo 'Declaraci&oacute;n';
 						break;
 				}
