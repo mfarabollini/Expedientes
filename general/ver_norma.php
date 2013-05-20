@@ -6,9 +6,10 @@ DesactivarSSL();
 
 
 $numero = $_GET['numero'];
+$tipo = $_GET['tipo'];
 $normas = new Normas();
 
-$existe = $normas->CargarNorma($numero);
+$existe = $normas->CargarNorma($numero,$tipo);
 
 
 ?>
@@ -130,7 +131,13 @@ $existe = $normas->CargarNorma($numero);
 				<?=str_replace(chr(13), '<br>', utf8($normas->descripcion)) ?>
             </div>            </td>
           </tr>
-     
+     		<tr id="tr_estado">
+            <td align="left" class="td1">Estado</td>
+            <td align="left" class="td2">
+            <div align="left" style="overflow:auto; height:20px; width:100%;">
+				<?=str_replace(chr(13), '<br>', utf8($normas->estado)) ?>
+            </div>            </td>
+          </tr>
           <tr>
             <td height="25" colspan="2" align="center" class="header2">Normas que modifica</td>
             </tr>
@@ -143,8 +150,29 @@ $existe = $normas->CargarNorma($numero);
 				 for ($i=0; $i < sizeof($modifica); $i++)
 				 	if ($modifica[$i] != '')
 					{
-					 	echo "<a href='ver_norma.php?numero=".$modifica[$i]."'>Norma ".$modifica[$i]."</a>";
-						if (($i+2) < sizeof($modifica)) {echo ', ';}
+					 	switch (substr($modifica[$i],0,1)){
+						case 'O':	
+							echo "<a href='ver_norma.php?numero=".substr($modifica[$i],1)."&tipo=ORD"."'>Ordenanza ".substr($modifica[$i],1)."</a>";
+							if (($i+2) < sizeof($modifica)) {echo ', ';}
+							break;
+						case 'D':	
+							echo "<a href='ver_norma.php?numero=".substr($modifica[$i],1)."&tipo=DEC"."'>Decreto ".substr($modifica[$i],1)."</a>";
+							if (($i+2) < sizeof($modifica)) {echo ', ';}
+							break;
+						case 'M':	
+							echo "<a href='ver_norma.php?numero=".substr($modifica[$i],1)."&tipo=COM"."'>Minuta Comunicaci&oacuten ".substr($modifica[$i],1)."</a>";
+							if (($i+2) < sizeof($modifica)) {echo ', ';}
+							break;
+						case 'R':	
+							echo "<a href='ver_norma.php?numero=".substr($modifica[$i],1)."&tipo=RES"."'>Resoluci&oacute;n ".substr($modifica[$i],1)."</a>";
+							if (($i+2) < sizeof($modifica)) {echo ', ';}
+							break;
+						case 'L':	
+							echo "<a href='ver_norma.php?numero=".substr($modifica[$i],1)."&tipo=DCL"."'>Declaracion ".substr($modifica[$i],1)."</a>";
+							if (($i+2) < sizeof($modifica)) {echo ', ';}
+							break;							
+																												
+					 	}
 					}
 			?>
             <br><br>
@@ -173,9 +201,9 @@ $existe = $normas->CargarNorma($numero);
                   
                   for ($i=0; $i < sizeof($modifica); $i++){
                   	if ($modifica[$i] != ''){
-                  		$prefijo = $normas->VerificarModif($modifica[$i]); 
-                  		if (file_exists(realpath('../pdf/'.$prefijo.$modifica[$i].'.pdf'))){
-							echo '<a target="_blank" href="../pdf/'.$prefijo.$modifica[$i].'.pdf">'.$prefijo.$modifica[$i].'.pdf</a>';	
+						
+                  		if (file_exists(realpath('../pdf/'.$modifica[$i].'.pdf'))){
+							echo '<a target="_blank" href="../pdf/'.$modifica[$i].'.pdf">'.$modifica[$i].'.pdf</a>';	
 							if (($i+2) < sizeof($modifica)) {
 								echo ', ';
 							}					

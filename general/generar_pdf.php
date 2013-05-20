@@ -53,10 +53,9 @@ if ($tipo_doc == 'norma'){
 			$tipo_norma =   'Declaraci&oacute;n: ';
 			break;
 	}
-	
+	$pdf->ezImage("../imagenes/cabecera.jpg");
 	$pdf->ezText(utf8_dec("<b> $tipo_norma").utf8_dec2($normas->numero."</b>\n"),20);
 	
-	$pdf->ezText($tipo_norma."\n",12);
 	$pdf->ezText("\n\n\n",10);
 	$pdf->ezText(utf8_dec("<b>Número:</b> ").utf8_dec2($normas->numero),10);
 	$pdf->ezText(utf8_dec("\n<b>Fecha de aprobación:</b> ").utf8_dec2(FormatoFecha($normas->fec_aprobacion)),10);
@@ -96,7 +95,7 @@ if ($tipo_doc == 'norma'){
 					  'Producer'=>'Sistema de expedientes'
 					  );
 	$pdf->addInfo($datacreator);
-	
+	$pdf->ezImage("../imagenes/cabecera.jpg");
 	if ($expediente->tipo == 'M')
 		$pdf->ezText(utf8_dec("<b>Expediente Nº ").utf8_dec2($expediente->nro_municipal."</b>\n"),20);
 	else

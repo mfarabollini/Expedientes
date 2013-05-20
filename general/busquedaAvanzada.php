@@ -390,12 +390,13 @@ if (isset($_GET['accion']))
           <tr>
             <td align="left" class="td1">Fecha de presentaci&oacute;n desde</td>
             <td align="left" class="td2"><?=CalendarioCreaInput('fec_presentacion_desde', $expediente->fec_presentacion_desde, '')?></td>
-            <td align="left" class="td1">Fecha de Sesi&oacute;n desde</td>
-            <td align="left" class="td2"><?=CalendarioCreaInput('fec_sesion_desde', $expediente->fec_sesion_desde, '')?></td>
+           <td align="left" class="td1">Fecha de presentaci&oacute;n hasta</td>
+            <td align="left" class="td2"><?=CalendarioCreaInput('fec_presentacion_hasta', $expediente->fec_presentacion_hasta, '')?></td>
+             
           </tr>
           <tr id="tr_fec_sesion">
-            <td align="left" class="td1">Fecha de presentaci&oacute;n hasta</td>
-            <td align="left" class="td2"><?=CalendarioCreaInput('fec_presentacion_hasta', $expediente->fec_presentacion_hasta, '')?></td>
+            <td align="left" class="td1">Fecha de Sesi&oacute;n desde</td>
+            <td align="left" class="td2"><?=CalendarioCreaInput('fec_sesion_desde', $expediente->fec_sesion_desde, '')?></td>
             <td align="left" class="td1">Fecha de Sesi&oacute;n hasta</td>
             <td align="left" class="td2"><?=CalendarioCreaInput('fec_sesion_hasta', $expediente->fec_sesion_hasta, '')?></td>
           </tr>
@@ -445,7 +446,9 @@ if (isset($_GET['accion']))
 
       <br />
       <br />
-
+      <? if ($_SESSION['perfil'] == 'C') { ?>
+      	<br><a href="busqueda.php">Volver a Busqueda Normal</a><br>
+      <?php }?>
 <?
 //	Causante
 //	Car&aacute;tula

@@ -29,8 +29,11 @@ if (isset($_GET['accion']))
 	{
 		CheckPerfiles('SDJI');
 		$numero = $_GET['numero'];
+		$tipoNorma = $_GET['tipo'];
+		$norma->numero_old = $numero;
+		$norma->tipo_old = $tipoNorma;
 		$numero_txt = $_GET['numero'];
-		$norma->CargarNorma($numero);
+		$norma->CargarNorma($numero,$tipoNorma);
 		if($_SESSION['perfil'] == 'J')
 			$onload = 'onload="DisabledInputs();"';
 	}
@@ -55,10 +58,11 @@ if (isset($_GET['accion']))
 	{
 		CheckPerfiles('SDOJI');
 
-		if($_SESSION['perfil'] == 'J'){
-			$norma->GrabarTags();
-		}else{
+		if($_SESSION['perfil'] == 'I' ||
+		   $_SESSION['perfil'] == 'S'){
 			$norma->GrabarPost();
+		   	$norma->GrabarTags();
+
 		}	
 		header("Location: confirma_norma.php?numero=".$norma->numero."&accion=".$_POST['accion_anterior']);
 	}
@@ -125,8 +129,41 @@ else
 		}
 				
 	}
-	
+
+
 	function Grabar()
+	{
+		if (ValidarGrabado())
+		{
+
+			var oAjax = nuevoAjax();
+			var oNorma = document.getElementById('numero');		
+			var oTipo = document.getElementById('tipo');
+			var ret;
+			
+			oAjax.open("GET", "norma.php?accion=verif_numero&numero="+oNorma.value+"&tipo="+oTipo.value,true);
+			oAjax.onreadystatechange=function() {
+				if (oAjax.readyState=='4' || oAjax.readyState=="complete") {
+					ret =  oAjax.responseText;
+					if (ret=='N'){
+						var oAgregados = document.getElementById('hdnModifica');		
+						var oCombo = document.getElementById('modifica');
+				
+						oAgregados.value = '|';
+						for (var i=0; i < oCombo.options.length; i++)
+							oAgregados.value += oCombo.options[i].value + "|";
+			
+						document.form1.submit();
+					}else{
+						alert('Ya existe una Norma con ese Número y Tipo');
+					}
+				}	
+			}
+			oAjax.send(null);
+		}
+	}
+
+	function GrabarModificado()
 	{
 		if (ValidarGrabado())
 		{
@@ -176,11 +213,27 @@ else
 	}
 	
 	
-	function EstaEnCombo(norma)
+	function EstaEnCombo(norma,tipo)
 	{
 		var oCombo = document.getElementById('modifica');
 		var existe = false;
-		
+		switch(tipo){
+		case 'ORD':  
+			norma = 'O'+norma;
+			break;
+		case 'DEC':  
+			norma = 'D'+norma;
+			break;
+		case 'RES':  
+			norma = 'R'+norma;
+			break;
+		case 'COM':  
+			norma = 'M'+norma;
+			break;
+		case 'DCL':  
+			norma = 'L'+norma;
+			break;										
+	}
 		for (var i=0; i < oCombo.options.length && !existe; i++)
 		{
 			if (oCombo.options[i].value == norma) existe = true;
@@ -191,11 +244,60 @@ else
 	
 
 
+	function verificarNro(perfil){
+
+		var oNorma = document.getElementById('numero');	
+		var oNorma_old = document.getElementById('numero_old');			
+		var oTipo = document.getElementById('tipo'); 	
+		var oTipo_old = document.getElementById('tipo_old'); 
+
+		if (oNorma.value=='') {
+			alert('Debe elegir una norma.');
+		}
+		if (oTipo.value == 'null') {
+			alert('Debe elegir un tipo de norma');
+		}
+		else {
+			
+			if ((oNorma_old.value!=oNorma.value)||(oTipo_old.value!=oTipo.value)){
+
+					var oAjax = nuevoAjax();
+					var ret;
+					
+					oAjax.open("GET", "norma.php?accion=verif_numero&numero="+oNorma.value+"&tipo="+oTipo.value,true);
+					oAjax.onreadystatechange=function() {
+						if (oAjax.readyState=='4' || oAjax.readyState=="complete") {
+							ret = oAjax.responseText;
+							if(ret != 'N'){
+								alert("Ya existe una Norma con ese Numero y Tipo");	
+								oNorma.value = oNorma_old.value;
+								oTipo.value = oTipo_old.value;		
+							}else{
+								if(perfil != 'J'){
+									GrabarModificado();
+								}else{
+									document.form1.submit();
+								}
+							}
+						}
+					}
+					oAjax.send(null)
+			}else{
+				if(perfil != 'J'){
+					GrabarModificado();
+				}else{
+					document.form1.submit();
+				}
+			}
+		}		
+	}
+
 	function AgregarNormaMod()
 	{
 		var oCombo = document.getElementById('modifica');
 		var oTipo = document.getElementById('tipoNormaModif'); 		
-		var oNumero = document.getElementById('numero');		
+		var oNumero = document.getElementById('numero');
+		var oTipoOri = document.getElementById('tipo');		
 		var oNorma = document.getElementById('txt_agregar');	
 
 		if (oNorma.value=='') {
@@ -206,16 +308,15 @@ else
 		}
 		else {
 			
-			if (trim(oNorma.value)==oNumero.value)
+			if ((trim(oNorma.value)==oNumero.value)&&(trim(oTipo.value)==oTipoOri.value))
 			{
 				alert("No puede ingresar como agregado a este misma norma.");
 			}
 			else
 			{
 
-				if (!EstaEnCombo(oNorma.value))
+				if (!EstaEnCombo(oNorma.value,oTipo.value))
 				{
-
 					var oAjax = nuevoAjax();
 					var ret;
 					
@@ -226,7 +327,24 @@ else
 							if(ret == 'N'){
 								alert("Nro de Norma inexistente");					
 							}else{
-								oCombo.options[oCombo.options.length] = new Option(oNorma.value, oNorma.value, false, false);
+								switch(oTipo.value){
+									case 'ORD':  
+										normaAdd = 'O'+oNorma.value;
+										break;
+									case 'DEC':  
+										normaAdd = 'D'+oNorma.value;
+										break;
+									case 'RES':  
+										normaAdd = 'R'+oNorma.value;
+										break;
+									case 'COM':  
+										normaAdd = 'M'+oNorma.value;
+										break;
+									case 'DCL':  
+										normaAdd = 'L'+oNorma.value;
+										break;										
+								}
+								oCombo.options[oCombo.options.length] = new Option(normaAdd, normaAdd, false, false);
 								
 								if (oCombo.options.length > 0) {oCombo.selectedIndex=0;}
 								
@@ -236,7 +354,7 @@ else
 							}
 						}
 					}
-					oAjax.send(null)
+					oAjax.send(null);
 
 				}
 				else
@@ -266,7 +384,7 @@ else
 		var textarea =  document.getElementsByTagName('textarea');
 		
 		for(i=0 ; i < inputs.length ; i++) {
-			if(inputs[i].name != 'tags' && inputs[i].name != 'btnGrabar' && inputs[i].name != 'btnCancelar' && inputs[i].name != 'numero' && inputs[i].name != 'accion_anterior')
+			if(inputs[i].name != 'btnGrabar' && inputs[i].name != 'btnCancelar' && inputs[i].name != 'numero' && inputs[i].name != 'accion_anterior')
 				inputs[i].disabled = 'disabled';
 		}
 		
@@ -313,7 +431,7 @@ else
       <table width="505" border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td id="td_solapa1" width="181" height="25" align="center" valign="middle" class="solapa3" onmouseout="Estilo(this, 'solapa1');" onmouseover="Estilo(this, 'solapa2');" onclick="EligeSolapa(1);">Datos norma</td>
-        <td id="td_solapa2" width="181" height="25" align="center" valign="middle" class="solapa1" onmouseout="Estilo(this, 'solapa1');" onmouseover="Estilo(this, 'solapa2');" onclick="EligeSolapa(2);">Normas que modifica</td>
+        <td id="td_solapa2" width="181" height="25" align="center" valign="middle" class="solapa1" onmouseout="Estilo(this, 'solapa1');" onmouseover="Estilo(this, 'solapa2');" onclick="EligeSolapa(2);">Normativas Relacionadas</td>
         <td width="101">&nbsp;</td>
       </tr>
       <tr id="cont_solapa1">
@@ -323,9 +441,9 @@ else
           </tr>
           <tr>
             <td width="151" height="24" align="left" class="td1">N&uacute;mero de norma</td>
-            <td width="342" align="left" class="td2"><strong>
- 	                       
+            <td width="342" align="left" class="td2"><strong>          
               <? if ($_GET['accion'] == 'editar') { ?>
+              		<input id="numero_old" name="numero_old" type="hidden" value="<?=$numero?>" />
               		<input id="numero" name="numero" type="text" value="<?=$numero?>" />
               <? } else { ?>
               		<input id="numero" name="numero" type="text" value="" />
@@ -335,6 +453,7 @@ else
           <tr>
             <td width="151" align="left" class="td1">Tipo de Norma</td>
             <td width="342" align="left" class="td2">		  
+			  <input name="tipo_old" id="tipo_old" type="hidden" value="<?php echo $norma->tipo?>"/>
 			  <select name="tipo" id="tipo" style="width:204px;">          
 			  	<option value="null">[Elegir...]</option>';  
                 <option value="ORD" <? if ($norma->tipo=='ORD') echo 'selected'; ?>>Ordenanza</option>
@@ -348,23 +467,28 @@ else
           
         <tr id="tr_caratula">
             <td align="left" class="td1">Descripci&oacute;n</td>
-            <td align="left" class="td2"><textarea name="descripcion" id="descripcion" style="width:200px;" rows="5"><?=utf8($norma->descripcion)?></textarea></td>
+            <td align="left" class="td2"><textarea name="descripcion" id="descripcion" style="width:347px;" rows="10"><?=utf8($norma->descripcion)?></textarea></td>
           </tr>
 
+        <tr id="tr_estado">
+            <td align="left" class="td1">Estado</td>
+            <td align="left" class="td2"><textarea name="estado" id="estado" style="width:347px;" rows="3"><?=utf8($norma->estado)?></textarea></td>
+          </tr>
+        
           <tr id="tr_fec_aprobacion">
             <td align="left" class="td1">Fecha de aprobaci&oacute;n</td>
-            <td align="left" class="td2"><?=CalendarioCreaInput('fec_aprobacion', $norma->fec_aprobacion, '')?></td>
+            <td align="left" class="td2"><?=CalendarioCreaInputNorma('fec_aprobacion', $norma->fec_aprobacion, '')?></td>
           </tr>
 
           
           <td align="left" class="td1" valign="top" >Tags</td>
             <td align="left" class="td2">
-            	<input type="text" value="<?php echo $norma->tags; ?>" name="tags" maxlength="200" style="width: 200px;" <?php if($_SESSION['perfil'] != 'J') echo "disabled"; ?> />
+            	<textarea name="tags" id="tags" style="width:347px;" rows="3"><?php echo $norma->tags; ?></textarea>
             	<div class="tags" >
 	            	Los tags se deben:
 	            	<ul>
-	            		<li>Estar separados por un espacio.</li>
-	            		<li>Tener una longitud m&iacute;nima de 4 caracteres, de lo contrario no seran tenidos en cuenta.</li>
+	            		<li>Estar separados por un punto y coma (;).</li>
+	            		<li>Tener una longitud m&iacute;nima de 3 caracteres, de lo contrario no seran tenidos en cuenta.</li>
 	            	</ul>
             	</div>
             </td>
@@ -386,7 +510,7 @@ else
       <tr id="cont_solapa2" style="display:none">
         <td colspan="3" align="center" valign="middle"><table width="505" border="0" cellpadding="1" cellspacing="1" bgcolor="#FFFFFF">
           <tr>
-            <td height="25" colspan="2" align="center" valign="middle" class="header2">Normas que modifica</td>
+            <td height="25" colspan="2" align="center" valign="middle" class="header2">Normativas Relacionadas</td>
           </tr>
           <tr>
             <td width="50%" align="center" valign="middle" class="td2">
@@ -424,13 +548,15 @@ else
     <br />
 <div align="center" class="td1" style="width:730px; height:20px">
 
-  <input name="btnGrabar" type="button" id="btnGrabar" value="Grabar" style="width:100px" <?php 
-
-if($_SESSION['perfil'] != 'J') 
-	echo 'onClick="javascript: Grabar();"'; 
-else 
-	echo 'onClick="javascript: document.form1.submit();"'; 
-?> >
+<?php 	if ($accion=='editar'){ ?>	
+			<input name="btnGrabar" type="button" id="btnGrabar" value="Grabar" style="width:100px" onClick="verificarNro('<?php echo $_SESSION['perfil'] ?>')" />
+<?php 	}else{
+			if ($_SESSION['perfil']!='J'){ ?>
+			<input name="btnGrabar" type="button" id="btnGrabar" value="Grabar" style="width:100px" onClick="Grabar()" />			
+<?php 		}else{ ?>
+			<input name="btnGrabar" type="button" id="btnGrabar" value="Grabar" style="width:100px" onClick="document.form1.submit();" />		
+<?php 		}
+		}?>  
   &nbsp;&nbsp;&nbsp;&nbsp;
   <input name="btnCancelar" type="button" id="btnCancelar" value="Cancelar" style="width:100px" onClick="javascript: Cancelar();">
 </div>

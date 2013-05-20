@@ -330,6 +330,7 @@ Auditoria($numero, 'Vista expediente');
 				
 				$indice = -1;				
 				$llenando = false;
+				$primero = false;
 				for ($i=0; $i < strlen($tipo_aprobacion); $i++)
 				{
 					if (!(strpos("0123456789.,", $tipo_aprobacion[$i]) === false))
@@ -338,7 +339,7 @@ Auditoria($numero, 'Vista expediente');
 						{
 							$llenando = true;
 							$indice++;
-							$vec_aprob[$indice] = '';
+							$vec_aprob[$indice] = $tipo_aprobacion[$i-1];
 						}
 						
 						if (!(strpos("0123456789", $tipo_aprobacion[$i]) === false))
@@ -356,8 +357,32 @@ Auditoria($numero, 'Vista expediente');
 				{
 					foreach ($vec_aprob as $value)
 					{
-						if (file_exists(realpath('../pdf/'.$value.'.pdf')))
-							$documentos .= '<a target="_blank" href="../pdf/'.$value.'.pdf">'.$value.'.pdf</a>, ';
+
+						$prefix = '';
+						$pos = strpos($tipo_aprobacion, 'ORDE');
+						if ($pos !== false) {
+							$prefix = 'O';
+						}
+						$pos = strpos($tipo_aprobacion, 'DECR');
+						if ($pos !== false) {
+							$prefix = 'D';
+						}	
+						$pos = strpos($tipo_aprobacion, 'RESO');
+						if ($pos !== false) {
+							$prefix = 'R';
+						}
+						$pos = strpos($tipo_aprobacion, 'MINU');
+						if ($pos !== false) {
+							$prefix = 'M';
+						}
+						$pos = strpos($tipo_aprobacion, 'DECL');
+						if ($pos !== false) {
+							$prefix = 'L';
+						}						
+							
+							
+						if (file_exists(realpath('../pdf/'.$prefix.trim($value).'.pdf')))
+							$documentos .= '<a target="_blank" href="../pdf/'.$prefix.trim($value).'.pdf">'.$prefix.trim($value).'.pdf</a>, ';
 						else
 							$documentos .= '<a href="javascript: alert('."'".'No se ha digitalizado todavia el documento'."'".');">'.$value.'.pdf</a>, ';
 					}

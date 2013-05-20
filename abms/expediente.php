@@ -519,7 +519,7 @@ else
             	<div class="tags" >
 	            	Los tags se deben:
 	            	<ul>
-	            		<li>Estar separados por un espacio.</li>
+	            		<li>Estar separados por punto y coma (;).</li>
 	            		<li>Tener una longitud mínima de 4 caracteres, de lo contrario no seran tenidos en cuenta.</li>
 	            	</ul>
             	</div>

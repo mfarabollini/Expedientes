@@ -9,9 +9,12 @@ class Normas
 	public $tipo; 
 	public $fec_aprobacion;
 	public $descripcion;
-	
+	public $estado;	
 	public $modifica;
 	public $modifica_txt;
+	
+	public $numero_old;
+	public $tipo_old;
 	
     public $tags;
 	
@@ -26,7 +29,7 @@ class Normas
 			$sql;
 			$rs;
 			
-			$sql = "select nro_norma from normas where nro_norma=$pNumero and tipo_norma='$pTipo'";
+			$sql = "select nro_norma from normas where nro_norma='$pNumero' and tipo_norma='$pTipo'";
 			if (!($rs = $conn->Execute($sql)))
 			{
 				return 'N';
@@ -50,6 +53,7 @@ class Normas
 		$this->numero_ext = '';
 		$this->tipo = 'null';
 		$this->descripcion = '';
+		$this->estado = '';
 		$this->fec_aprobacion = '';
 		$this->modifica = '';		
 		$this->modifica_txt = '';		
@@ -62,7 +66,7 @@ class Normas
 	}
 
 
-	public function CargarNorma($nro_norma)
+	public function CargarNorma($nro_norma, $tipoNorma)
 	{
 
 
@@ -70,10 +74,10 @@ class Normas
 			$sql;
 			$rs;
 		
-			$sql = "select n.*, t.tags as tags ".
-			   "from normas n ".
-			   "left join tags_normas t on t.nro_norma = n.nro_norma ".
-			   "where n.nro_norma='$nro_norma'";
+			$sql = "SELECT n.*, t.tags as tags ".
+			   		"FROM normas n ".
+			   		"LEFT JOIN tags_normas t ON t.nro_norma = n.nro_norma AND t.tipo_norma = n.tipo_norma ".
+			   		"WHERE n.nro_norma='$nro_norma' and n.tipo_norma='$tipoNorma'";
 			   
 		$rs = $conn->Execute($sql);
 		
@@ -86,6 +90,7 @@ class Normas
 			$this->numero = $rs->fields['nro_norma'];
 			$this->tipo = $rs->fields['tipo_norma'];
 			$this->descripcion = $rs->fields['dsc_norma'];
+			$this->estado = $rs->fields['estado'];
 			$this->fec_aprobacion = $rs->fields['fec_aprob'];
 			$this->modifica = $rs->fields['modifica'];
 			$this->tags = $rs->fields['tags'];
@@ -176,111 +181,6 @@ class Normas
 		return $filtro;
 	}
 
-
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	//+ Mdificaci�n Reporte Preferencias                                  +
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	//+ Verifico que los expedientes cargados existan y sean legislativos  +
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	public function SqlCheckExpPref($exp)
-	{
-		$sql = '';
-		global $conn;
-		//echo $exp;
-		$sql = "select A.tipo_proy, B.causante, A.numero, A.letra, A.anio, C.destino, A.caratula ".
-				"from expedientes A, causantes B, destinos C, lista_preferencias D ".
-				"where A.id_causante = B.id_causante ".
-				"and A.com_destino = C.id_destino ".
-				
-	           // "and (SUBSTRING(C.destino,1,8) = SUBSTRING(D.desc_lista,1,8) OR ".
-				//		"SUBSTRING(C.destino,1,5)=SUBSTRING(D.desc_lista,1,5) OR ".
-					//	"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,12) OR ".
-					//	"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,6) OR ".
-					//	"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,11) OR ".
-					//	"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,13) OR ".																		
-						//"SUBSTRING(C.destino,1,5)=SUBSTRING(D.desc_lista,1,5) OR ".
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,12) OR ".
-					//	"SUBSTRING(C.destino,1,9)=SUBSTRING(D.desc_lista,1,9) OR ".
-					//	"SUBSTRING(C.destino,1,10)=SUBSTRING(D.desc_lista,1,10) OR ".
-						//"SUBSTRING(C.destino,1,8)=SUBSTRING(D.desc_lista,1,8) OR ".
-						//"SUBSTRING(C.destino,1,8)=SUBSTRING(D.desc_lista,1,8) ".	
-					//	"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,12) ".					
-				"and (SUBSTRING(C.destino,1,5) = SUBSTRING(D.desc_lista,1,5) ".
-				        // OR ".
-						//"SUBSTRING(C.destino,1,5)=SUBSTRING(D.desc_lista,1,5) OR ".
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,12) OR ".
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,6) OR ".
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,11) OR ".
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,13) OR ".																		
-						//"SUBSTRING(C.destino,1,5)=SUBSTRING(D.desc_lista,1,5) OR ".
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,12) OR ".
-						//"SUBSTRING(C.destino,1,9)=SUBSTRING(D.desc_lista,1,9) OR ".
-						//"SUBSTRING(C.destino,1,10)=SUBSTRING(D.desc_lista,1,10) OR ".
-						//"SUBSTRING(C.destino,1,8)=SUBSTRING(D.desc_lista,1,8) OR ".
-						//"SUBSTRING(C.destino,1,8)=SUBSTRING(D.desc_lista,1,8) ".	
-						//"SUBSTRING(C.destino,1,12)=SUBSTRING(D.desc_lista,1,12) ".									
-				") ".				
-				"and A.tipo = 'L' ".
-				"and A.numero in (".$exp.") ".
-				"GROUP BY A.numero ".
-				"ORDER BY D.id_lista, A.numero";
-				
-		//print $sql;		
-		return $sql;
-	}
-	
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	//+ Mdificaci�n Reporte Preferencias                                  +
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	//+ Verifico que los expedientes cargados existan y sean legislativos  +
-	//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-	public function SqlCheckExpOrd($exp)
-	{
-		$sql = '';
-		global $conn;
-		$sql = "select A.tipo_proy, B.causante, A.numero, A.letra, A.anio, C.destino, A.caratula ".
-				"from expedientes A, causantes B, destinos C ".
-				"where A.id_causante = B.id_causante ".
-				"and A.com_destino = C.id_destino ".
-				"and A.tipo = 'L' ".
-				"and A.numero in (".$exp.")".
-				" and  (".
-						"SUBSTRING(C.destino,1,5)='GOBIE' OR ".
-						"SUBSTRING(C.destino,1,5)='PRESU' OR ".
-						"SUBSTRING(C.destino,1,5)='OBRAS' OR ".
-						"SUBSTRING(C.destino,1,5)='SEGUR' OR ".						
-						"SUBSTRING(C.destino,1,5)='SALUD' OR ".												
-						"SUBSTRING(C.destino,1,5)='PLANE' OR ".												
-						"SUBSTRING(C.destino,1,5)='SERVI' OR ".												
-						"SUBSTRING(C.destino,1,5)='PRODU' OR ".												
-						"SUBSTRING(C.destino,1,5)='ECOLO' OR ".												
-						"SUBSTRING(C.destino,1,5)='DEREC' OR ".												
-						"SUBSTRING(C.destino,1,5)='PRESI')"; 
-						
-					//	"SUBSTRING(C.destino,1,9)='GOBIERNO,' OR ".
-					//	"SUBSTRING(C.destino,1,5)='SALUD' OR ".
-					//	"SUBSTRING(C.destino,1,6)='SALUD,' OR ".
-					//	"SUBSTRING(C.destino,1,11)='PRESUPUESTO' OR ".
-					//	"SUBSTRING(C.destino,1,12)='PRESUPUESTO,' OR ".
-					//	"SUBSTRING(C.destino,1,9)='SEGURIDAD' OR ".	
-					//	"SUBSTRING(C.destino,1,10)='SEGURIDAD,' OR ".						
-					//	"SUBSTRING(C.destino,1,5)='OBRAS' OR ".
-					//	"SUBSTRING(C.destino,1,6)='OBRAS,' OR ".
-					//	"SUBSTRING(C.destino,1,12)='PLANEAMIENTO' OR ".
-					//	"SUBSTRING(C.destino,1,13)='PLANEAMIENTO,' OR ".						
-					//	"SUBSTRING(C.destino,1,9)='SERVICIOS' OR ".
-					//	"SUBSTRING(C.destino,1,10)='SERVICIOS,' OR ".
-					//	"SUBSTRING(C.destino,1,10)='PRODUCCION' OR ".
-					//	"SUBSTRING(C.destino,1,11)='PRODUCCION,' OR ".
-					//	"SUBSTRING(C.destino,1,8)='ECOLOGIA' OR ".
-					//	"SUBSTRING(C.destino,1,9)='ECOLOGIA,' OR ".						
-					//	"SUBSTRING(C.destino,1,8)='DERECHOS' OR ".
-					//	"SUBSTRING(C.destino,1,9)='DERECHOS,' OR ".						
-     				//	"SUBSTRING(C.destino,1,11)='PRESIDENCIA')".
-					//	"SUBSTRING(C.destino,1,12)='PRESIDENCIA,')"; 
-		//print $sql;		
-		return $sql;
-	}
 	
 	public function cambiarFormatoFecha($fechaa){
 	    list($anioa,$mesa,$diaa)=explode("-",$fechaa);
@@ -310,19 +210,44 @@ class Normas
 			
 		if ($this->TieneValor($this->descripcion))
 			$filtro .= " and n.dsc_norma like '%".$this->descripcion."%'";
-					
+
+		if ($this->TieneValor($this->estado))
+			$filtro .= " and n.estado like '%".$this->estado."%'";
+			
+			
 		if ($this->TieneValor($this->fec_aprobacion_desde))
-			$filtro .= " and n.fec_aprobacion >= '".$this->fec_aprobacion_desde."'";
+			$filtro .= " and n.fec_aprob >= '".$this->fec_aprobacion_desde."'";
 			
 		if ($this->TieneValor($this->fec_aprobacion_hasta))
-			$filtro .= " and n.fec_aprobacion <= '".$this->fec_aprobacion_hasta."'";
+			$filtro .= " and n.fec_aprob <= '".$this->fec_aprobacion_hasta."'";
 								
-		if ($this->TieneValor($this->tags))
-			$filtro .= " and MATCH (t.tags) AGAINST ('{$this->tags}' IN boolean mode) ";
+		if ($this->TieneValor($this->tags)){
+			$tags = explode(';',$this->tags);
+			
+			if(count($tags) > 1 ) {
+				$index = 0;
+				$filtro .= "and (";
+				foreach($tags as $tag) {
+					if ($index > 0){
+						$filtro .= "or t.tags LIKE '%{$tag}%' ";
+					}else{	
+						$filtro .= "t.tags LIKE '%{$tag}%' ";
+					}
+					$index++;
+				}	
+				$filtro .= ")";
+			}elseif (count($tags) == 1 ){
+				$filtro .= " and t.tags LIKE '%{$tags[0]}%' ";					
+			}
+		}
+	
+			
+			//$filtro .= " and MATCH (t.tags) AGAINST ('{$this->tags}' IN boolean mode) ";
+			//$filtro .= " and t.tags LIKE '%{$this->tags}%' ";
 		
 		$sql = "select n.*, t.tags as tags ".
 			   "from normas n ".
-			   "left join tags_normas t on t.nro_norma = n.nro_norma ".
+			   "left join tags_normas t on t.nro_norma = n.nro_norma and t.tipo_norma = n.tipo_norma ".
 			   "where 1=1 ".$filtro;
 
 		return $sql;
@@ -357,76 +282,13 @@ class Normas
 		return $filtro;
 	}
 
-	//public function SqlReporte($orden)
-	public function SqlReporte()
-	{				
-		$sql = '';
-		global $conn;
-		$filtro = '';
-		//$ordenar_por = '';
-		
-		
-		//switch (strtoupper(trim($orden)))
-		//{
-		//	case 'GRUPO':
-		//			$ordenar_por = 'order by g.orden, e.fec_presentacion, e.numero';
-		//			break;
-
-		//	case 'NUMERO':
-		//			$ordenar_por = 'order by e.numero';
-		//			break;
-					
-		//	default:
-		//			$ordenar_por = 'order by e.numero';
-		//			break;
-		//}
-
-
-		$this->LeerPost();
-				
-		
-		if ($this->fec_presentacion_desde=='null') $this->fec_presentacion_desde='';
-		if ($this->fec_presentacion_hasta=='null') $this->fec_presentacion_hasta='';
-
-						
-		if ($this->TieneValor($this->numero))
-			$filtro .= " and ((numero=".$this->numero." and tipo<>'M') or (nro_municipal='".$this->numero."' and tipo='M'))";
-			
-		if ($this->flt_solo_sin_imprimir == 'S')
-			$filtro .= " and (impreso <> 'S' or impreso is null)";
-			
-			
-		if ($this->TieneValor($this->fec_presentacion_desde))
-			$filtro .= " and fec_presentacion >= '".$this->fec_presentacion_desde."'";
-			
-		if ($this->TieneValor($this->fec_presentacion_hasta))
-			$filtro .= " and fec_presentacion <= '".$this->fec_presentacion_hasta."'";
-				
-		
-		
-		$sql = "select e.*, cat.categoria, d1.destino as com_destino_txt, d2.destino as id_ubicacion_actual_txt, ap.aprobacion as id_aprobacion_txt, g.grupo, cau.causante as id_causante_txt ".
-			   "from expedientes e ".
-			   "left join destinos d1 on d1.id_destino=e.com_destino ".
-			   "left join destinos d2 on d2.id_destino=e.id_ubicacion_actual ".
-			   "left join categorias cat on cat.id_categoria=e.id_categoria ".
-			   "left join formas_aprobacion ap on ap.id_aprobacion=e.id_aprobacion ".
-			   "left join causantes cau on cau.id_causante=e.id_causante ".			   
-			   "inner join grupos_impresion g on g.id_grupo=e.id_grupo ".
-			   "where 1=1 ".$filtro." and e.tipo<>'I' ".
-			   "order by g.orden, e.fec_presentacion, e.numero";
-		
-		
-		return $sql;
-	}
-
-
 	private function LeerPost()
 	{				
 		$this->numero = str_replace('.', '', str_replace(',', '', $this->ValorPostNull('numero')));
 		$this->tipo = $this->ValorPost('tipo');
 
-		$this->descripcion = substr($this->ValorPost('descripcion'), 0, 250);
-
+		$this->descripcion = substr($this->ValorPost('descripcion'), 0, 500);
+		$this->estado = substr($this->ValorPost('estado'), 0, 100);
 		$this->fec_aprobacion = $this->ValorPostFecha('fec_aprobacion');
 		$this->fec_aprobacion_desde = $this->ValorPostFecha('fec_aprobacion_desde');
 		$this->fec_aprobacion_hasta = $this->ValorPostFecha('fec_aprobacion_hasta');
@@ -456,9 +318,9 @@ class Normas
 			$this->fec_alta = "'".date('Y-m-d H:i:s')."'";
 
 			$sql = "INSERT INTO normas ".
-				   "(nro_norma, tipo_norma, fec_aprob, dsc_norma, modifica, id_usuario_alta, fec_alta) ".
+				   "(nro_norma, tipo_norma, fec_aprob, dsc_norma, estado, modifica, id_usuario_alta, fec_alta) ".
 				   "VALUES ".
-				   "('$this->numero','$this->tipo', $this->fec_aprobacion, '$this->descripcion','$this->modifica', '$this->id_usuario_alta', $this->fec_alta)";
+				   "('$this->numero','$this->tipo', $this->fec_aprobacion, '$this->descripcion','$this->estado','$this->modifica', '$this->id_usuario_alta', $this->fec_alta)";
 
 			if (!$conn->Execute($sql))
 			{
@@ -467,20 +329,39 @@ class Normas
 		}
 		else
 		{
-
 			$this->fec_mod = "'".date('Y-m-d H:i:s')."'";
-			$sql = "UPDATE normas SET ".
-						   "tipo_norma='$this->tipo', ".
+			$this->numero_old = $_POST['numero_old'];
+			$this->tipo_old   = $_POST['tipo_old'];
+			if (($_POST['numero'] != $_POST['numero_old'])||($_POST['tipo'] != $_POST['tipo_old'])){
+				//Borro el registro
+				$sql = "DELETE FROM normas WHERE nro_norma='$this->numero_old' and tipo_norma='$this->tipo_old'";
+				$conn->Execute($sql);
+
+								
+				//Inserto el Nuevo
+				$sql = "INSERT INTO normas ".
+					   "(nro_norma, tipo_norma, fec_aprob, dsc_norma, estado, modifica, id_usuario_mod, fec_mod) ".
+					   "VALUES ".
+					   "('$this->numero','$this->tipo', $this->fec_aprobacion, '$this->descripcion','$this->estado','$this->modifica', '$this->id_usuario_mod', $this->fec_mod)";
+				
+				$registro_nuevo = 0;
+				$conn->Execute($sql);
+				
+			}else{
+			
+				$sql = "UPDATE normas SET ".
 						   "fec_aprob=$this->fec_aprobacion, ".
 						   "dsc_norma='$this->descripcion', ".
+						   "estado='$this->estado', ".
 						   "modifica='$this->modifica', ".						   
 						   "id_usuario_mod=$this->id_usuario_mod, ".
 						   "fec_mod=$this->fec_mod ".
-						   "where nro_norma='$this->numero'";
-
-			$registro_nuevo = 0;
-			$conn->Execute($sql);
-			
+						   "where nro_norma='$this->numero' AND ".
+						   "tipo_norma='$this->tipo'";
+	
+				$registro_nuevo = 0;
+				$conn->Execute($sql);
+			}
 		}
 		
 		$conn->CompleteTrans(true);
@@ -493,26 +374,20 @@ class Normas
 		$this->LeerPost();
 		
 		$conn->StartTrans();
-
-		$this->fec_mod = "'".date('Y-m-d H:i:s')."'";
-		$this->id_usuario_mod = $_SESSION['id_usuario'];
-		$sql = "UPDATE normas SET ".
-						   "id_usuario_mod=$this->id_usuario_mod, ".
-						   "fec_mod=$this->fec_mod ".
-						   "where nro_norma=$this->numero";
-		$conn->Execute($sql);
-
+		if ($_POST['accion_anterior']!='editar'){
+			$this->fec_mod = "'".date('Y-m-d H:i:s')."'";
+			$this->id_usuario_mod = $_SESSION['id_usuario'];
+			$sql = "UPDATE normas SET ".
+							   "id_usuario_mod=$this->id_usuario_mod, ".
+							   "fec_mod=$this->fec_mod ".
+							   "where nro_norma=$this->numero AND ".
+							   "tipo_norma='$this->tipo'";
+			$conn->Execute($sql);
+		}
 		$this->guardarTags();
 		$conn->CompleteTrans(true);
 	}
 	
-	
-	public function MarcarImpreso()
-	{
-		global $conn;
-		
-		$conn->Execute("update expedientes set impreso='S' where numero=".$this->numero);
-	}
 	
 	public function ValorPost($valor)
 	{
@@ -541,16 +416,6 @@ class Normas
 			return 'null';
 	}
 
-	//public function ValorGetFecha($valor)
-	//{
-	//	if (isset($_GET[$valor]))
-	//		if ($_GET[$valor]=='' || $_GET[$valor]=="0")
-	//			return 'null';
-	//		else
-	//			return utf8_dec($_GET[$valor]);
-	//	else
-	//		return 'null';
-	//}
 	public function ValorGetFecha($valor)
 	{
 		if (isset($_GET[$valor]))
@@ -568,209 +433,6 @@ class Normas
 			return 'null';
 	}
 	
-	public function ValorDestino($valor)
-	{
-		global $conn;
-		
-		if (isset($_POST[$valor]))
-		{
-			$valor_id = utf8_decode($_POST[$valor]);
-			$valor_txt = str_replace("'", "''", strtoupper(utf8_dec(trim($_POST[$valor.'_txt']))));
-			
-			if ($valor_txt == '')
-				return 'null';
-			else
-			{
-				//me fijo si lo encuentro, si no lo doy de alta
-				$rs = $conn->Execute("select id_destino from destinos where upper(destino)='".strtoupper($valor_txt)."'");
-				if (!$rs->EOF)
-					return $rs->fields['id_destino'];
-				else
-				{
-					$conn->Execute("insert into destinos (destino) values ('".$valor_txt."')");
-					return $conn->Insert_ID();
-				}
-			}
-		}
-		else
-			return '';
-	}
-	
-	public function buscarFormasAprobacion() {
-		
-		global $conn;
-		
-		if(trim($_POST['palabra']) == '' && trim($_POST['numero']) == '')
-			return false;
-		
-		$numero = strtoupper($_POST['numero']);
-		$palabra = strtoupper($_POST['palabra']);
-		
-		$sql = 	"SELECT a.numero AS numero, " .  
-				"a.fec_aprobacion AS fec_aprobacion, " .  
-				"a.fec_presentacion AS fec_presentacion,  " . 
-				"a.tipo_aprobacion AS tipo_aprobacion, " . 
-				"a.tipo_aprobacion AS forma_aprobacion " . 
-				"FROM expedientes AS a  " . 
-				//"LEFT JOIN formas_aprobacion AS b ON b.id_aprobacion = a.id_aprobacion " .
-				"WHERE a.tipo_aprobacion LIKE '%{$numero}%' " .
-				"AND a.tipo_aprobacion LIKE '%{$palabra}%' ";
-		
-		$rs = $conn->Execute($sql);
-	
-		return $rs;
-		
-	}
-	
-	public function guardarMovimientoMasivos() {
-		global $conn;
-		
-		if(!isset($_POST['numero']))
-			return;
-
-		$fecha = $this->ValorPostFecha('fecha');
-		$comentarios = $this->ValorPost('comentarios');
-		$id_ubicacion_actual = $this->ValorDestino('id_ubicacion_actual');
-
-		if($id_ubicacion_actual!='') {
-
-			$sql = Array();	
-			
-			foreach($_POST['numero'] as $numero) {
-				$numero = trim($numero);
-				$numero = str_replace('.', '', $numero);
-				$numero = str_replace(',', '', $numero);
-				$numero = str_replace('-', '', $numero);
-
-				$sql[] = "($numero, $id_ubicacion_actual, $fecha, '$comentarios')";
-			}
-
-			$sql = implode(",",$sql);
-			$sql = "INSERT INTO movimientos (numero, id_ubicacion_actual, fecha, comentario) ".
-				   "VALUES " . $sql;
-			
-			$conn->Execute($sql);	
-		}			
-	}
-	
-	public function guardarUbicacionActualMasivos() {
-		global $conn;
-		
-		if(!isset($_POST['numero']))
-			return;
-			
-		$id_ubicacion_actual = $this->ValorDestino('id_ubicacion_actual');
-
-		if($id_ubicacion_actual!='') {
-
-			$sql = Array();	
-			
-			foreach($_POST['numero'] as $numero) {
-				$numero = trim($numero);
-				$numero = str_replace('.', '', $numero);
-				$numero = str_replace(',', '', $numero);
-				$numero = str_replace('-', '', $numero);
-
-				$sql[] = $numero;
-			}
-
-			$sql = implode(",",$sql);
-			$sql = "UPDATE expedientes SET id_ubicacion_actual={$id_ubicacion_actual} WHERE numero IN ({$sql}) ";
-				
-			$conn->Execute($sql);
-			
-			return true;
-		}
-		
-	}
-	
-	private function ValorCategoria($valor)
-	{
-		global $conn;
-		
-		
-		if (isset($_POST[$valor]))
-		{
-			$valor_id = utf8_decode($_POST[$valor]);
-			$valor_txt = str_replace("'", "''", strtoupper(utf8_dec(trim($_POST[$valor.'_txt']))));
-			
-			if ($valor_txt == '')
-				return 'null';
-			else
-			{
-				//me fijo si lo encuentro, si no lo doy de alta
-				$rs = $conn->Execute("select id_categoria from categorias where upper(categoria)='".strtoupper($valor_txt)."'");
-				if (!$rs->EOF)
-					return $rs->fields['id_categoria'];
-				else
-				{
-					$conn->Execute("insert into categorias (categoria) values ('".$valor_txt."')");
-					return $conn->Insert_ID();
-				}
-			}
-		}
-		else
-			return '';
-	}
-
-
-	private function ValorAprobacion($valor)
-	{
-		global $conn;
-		
-		if (isset($_POST[$valor]))
-		{
-			$valor_id = utf8_decode($_POST[$valor]);
-			$valor_txt = str_replace("'", "''", strtoupper(utf8_dec(trim($_POST[$valor.'_txt']))));
-			
-			if ($valor_txt == '')
-				return 'null';
-			else
-			{
-				//me fijo si lo encuentro, si no lo doy de alta
-				$rs = $conn->Execute("select id_aprobacion from formas_aprobacion where upper(aprobacion)='".strtoupper($valor_txt)."'");
-				if (!$rs->EOF)
-					return $rs->fields['id_aprobacion'];
-				else
-				{
-					$conn->Execute("insert into formas_aprobacion (aprobacion) values ('".$valor_txt."')");
-					return $conn->Insert_ID();
-				}
-			}
-		}
-		else
-			return '';
-	}
-
-
-	private function ValorCausante($valor)
-	{
-		global $conn;
-		
-		if (isset($_POST[$valor]))
-		{
-			$valor_id = utf8_decode($_POST[$valor]);
-			$valor_txt = str_replace("'", "''", strtoupper(utf8_dec(trim($_POST[$valor.'_txt']))));
-			
-			if ($valor_txt == '')
-				return 'null';
-			else
-			{
-				//me fijo si lo encuentro, si no lo doy de alta
-				$rs = $conn->Execute("select id_causante from causantes where upper(causante)='".strtoupper($valor_txt)."'");
-				if (!$rs->EOF)
-					return $rs->fields['id_causante'];
-				else
-				{
-					$conn->Execute("insert into causantes (causante) values ('".$valor_txt."')");
-					return $conn->Insert_ID();
-				}
-			}
-		}
-		else
-			return '';
-	}
-	
 	
 	private function TieneValor($valor)
 	{
@@ -784,60 +446,46 @@ class Normas
 	private function guardarTags() {
 
 		global $conn;
-		
-		// Primero debe borrar los tags anteriores.
-		$rs = $conn->Execute("DELETE FROM `tags_normas` WHERE `nro_norma`= {$this->numero}");
-		
-		$tags = explode(' ',$this->tags);
-		
-		if(count($tags) > 0 ) {
-			foreach($tags as $tag) {
-				if(strlen($tag) > 3) 
-					$tagSave .= $tag." ";
-			}
+		$this->numero_old = $_POST['numero_old'];
+		$this->tipo_old   = $_POST['tipo_old'];
+		if ($_POST['accion_anterior']!='editar'){
+			// Primero debe borrar los tags anteriores.
+			$rs = $conn->Execute("DELETE FROM `tags_normas` WHERE `nro_norma`= {$this->numero} and `tipo_norma`= '{$this->tipo}'");
 			
-			if(strlen($tagSave)>0) {
-				$sql = "INSERT INTO `tags_normas` (`nro_norma`, `tags`) VALUES ({$this->numero}, '{$tagSave}')";
-				$rs = $conn->Execute($sql);
+			$tags = explode(';',$this->tags);
+			
+			if(count($tags) > 0 ) {
+				foreach($tags as $tag) {
+					if(strlen($tag) > 2) 
+						$tagSave .= $tag.";";
+				}
+				
+				if(strlen($tagSave)>0) {
+					$sql = "INSERT INTO `tags_normas` (`nro_norma`,`tipo_norma`, `tags`) VALUES ({$this->numero}, '{$this->tipo}', '{$tagSave}')";
+					$rs = $conn->Execute($sql);
+				}
 			}
-		}
-	}
-	public function VerificarModif($normaModif){
-		
-		global $conn;
-		$sql;
-		$rs;
-		
-		$sql = "select tipo_norma ".
-				"from normas ".
-				"where nro_norma='$normaModif'";
-		
-		$rs = $conn->Execute($sql);
-		
-		if ($rs->EOF)
-		{
-			return false;
 		}else{
-			switch ($rs->fields['tipo_norma']){
-				case 'ORD':
-					return 'O';
-					break;
-				case 'DEC':
-					return 'D';
-					break;
-				case 'RES':
-					return 'R';
-					break;
-				case 'COM':
-					return 'M';
-					break;
-				case 'DLA':
-					return 'L';
-					break;
-			}
+					// Primero debe borrar los tags anteriores.
+			$rs = $conn->Execute("DELETE FROM `tags_normas` WHERE `nro_norma`= {$this->numero_old} and `tipo_norma`= '{$this->tipo_old}'");
+			
+			$tags = explode(';',$this->tags);
+			
+			if(count($tags) > 0 ) {
+				foreach($tags as $tag) {
+					if(strlen($tag) > 2) 
+						$tagSave .= $tag.";";
+				}
+				
+				if(strlen($tagSave)>0) {
+					$sql = "INSERT INTO `tags_normas` (`nro_norma`,`tipo_norma`, `tags`) VALUES ({$this->numero}, '{$this->tipo}', '{$tagSave}')";
+					$rs = $conn->Execute($sql);
+				}
+			}			
 			
 		}
 	}
+	
 }
 
 ?>

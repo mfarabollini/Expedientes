@@ -188,7 +188,34 @@ function trim(str)
 
     return str.replace(/^[\s]+/,'').replace(/[\s]+$/,'').replace(/[\s]{2,}/,' ');
 }
+function refrescarLista(result){
+	var selectObj = document.getElementById('selectX');
+	selectObj.options.length = 0;
+	selectObj.selectedIndex = -1;
 
+	for (var i = 1; i <= result.cant; i++) 
+	{
+		selectObj.options[i-1] = new Option(result[i], result[i]);
+
+	}
+}
+
+function actualizarLista(){
+	serverPage = "checkExp.php?accion=actualizar";
+	var obj = document.getElementById("exp_response");
+	obj.innerHTML = "Actualizando...";
+	xmlhttp.open("GET", serverPage);
+	xmlhttp.onreadystatechange = function() 
+	{
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) 
+		{	setTimeout("",10000); 
+			result = JSON.parse(xmlhttp.responseText);
+			refrescarLista(result);
+		}
+	};
+	xmlhttp.send(null);
+	obj.innerHTML = "";
+}
 
 function checkExpediente (number){
 //If there is nothing in the box, run Ajax to populate it.
@@ -222,6 +249,11 @@ function checkExpediente (number){
 						else if (xmlhttp.responseText == 2)
 						{
 							obj.innerHTML = "Expediente en MESAS DE ENTRADA";
+							document.form1.numero.value = "";
+						}
+						else if (xmlhttp.responseText == 3)
+						{
+							obj.innerHTML = "Expediente ya Aprobado";
 							document.form1.numero.value = "";
 						}
 						else 
@@ -489,6 +521,12 @@ function appendOptionLast(num)
 									<input type="button" size="30" name="remove_exp" id="remove_exp" value="     Borrar Expediente     " onClick="removeOptionSelected();" />
 								</td>
 							</tr>
+							<tr>
+								<td width="50%">&nbsp;</td>
+								<td align="center" width="50%" height="10">
+									<input type="button" size="30" name="update" id="update" value="             Actualizar            " onClick="actualizarLista();" />
+								</td>
+							</tr>							
 							<?php /*
 							<tr>
 								<td width="50%">&nbsp;</td>

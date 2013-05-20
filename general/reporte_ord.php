@@ -1,3 +1,36 @@
+<?php 
+// Modificacion para guardar los expedientes al salir de Orden del Dia
+include('../inc/inicio.inc.php');
+if($_POST['accion_lista'] != '') {
+	
+	switch ($_POST['accion_lista']) {
+		case 'resetear':
+			resetarLista();
+		break;
+	}
+	
+}
+$sql = "SELECT expediente FROM orden_dia_temp";
+$rs = $conn->Execute($sql);
+
+$lista_expedientes = Array();
+
+if(count($rs)>0 && !$rs->EOF) {
+	while(!$rs->EOF) {
+		$lista_expedientes[] = $rs->fields['expediente'];
+		$rs->MoveNext();
+	}
+}
+
+
+// Declaracion de funciones
+
+function resetarLista() {
+	global $conn;
+	$sql = "DELETE FROM orden_dia_temp";
+	$conn->Execute($sql);
+}
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -146,7 +179,7 @@ function checkExpediente (number){
 	 {	
 		if (document.getElementById("numero").innerHTML.length == 0)
 		{
-			serverPage = "checkExp.php?numero="+number;
+			serverPage = "checkExp_ord.php?numero="+number;
 			var obj = document.getElementById("exp_response");
 			obj.innerHTML = "Verificando...";
 			xmlhttp.open("GET", serverPage);
@@ -326,9 +359,18 @@ function MoveDn(listField)
    }
 }
 
+function resetaerrLista() {
+	with (document.form1) {		
+		action = '';
+		document.form1.accion_lista.value = 'resetear';
+		submit();
+	}	
+}
 	//aca termina lo nuevo
 	
 </script>
+
+
 </head>
 <body>
 <form action="reporte_ord_exec.php?accion=crear" method="post" name="form1" id="form1">
@@ -375,6 +417,11 @@ function MoveDn(listField)
 						<td width="10%">&nbsp;</td>
 						<td width="50%" align="center" >
 							<select id="selectX" size="10" multiple="multiple" style="width:100%" name="selectX">
+							<?php
+								foreach($lista_expedientes as $expediente) {
+									echo '<option value="' . $expediente .'" >' . $expediente .'</option>';
+								}
+							?>
 							</select>
 							<!--<input type="hidden" name="parseString" value="" />				-->
 							<div id="check_response"></div>
@@ -425,6 +472,13 @@ function MoveDn(listField)
 								<td width="50%">&nbsp;</td>
 								<td align="center" width="50%" height="10">
 									<input type="button" size="30" name="movedown_exp" id="movedown_exp" value="      Mover Exp. Abajo      " onClick="MoveDn(document.getElementById('selectX'));" />
+								</td>
+							</tr>
+							<tr>
+								<td width="50%">&nbsp;</td>
+								<td align="center" width="50%" height="10">	
+									<input type="hidden" name="accion_lista" value="" /> 
+									<input type="button" name="resetear_lista" size="30" value="        Resetear Lista       " onclick="resetaerrLista()" />
 								</td>
 							</tr>
 							</table>

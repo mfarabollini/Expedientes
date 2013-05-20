@@ -55,7 +55,9 @@ function CalendarioCreaInput($p_cldNombre, $p_cldValor, $p_tag) {
 	
 	
 	//Armo el calendario
-	$cldCalendario = "<input type='text' size=12 name='x". $p_cldNombre ."' id='x". $p_cldNombre ."' readonly='1' value='". $cldFecha ."' class='xFormsFlatRo' onfocus='".$p_cldNombre."_triger.click();' $p_tag>".
+	$cldCalendario = 
+					 //"<input type='text' size=12 name='x". $p_cldNombre ."' id='x". $p_cldNombre ."' readonly='1' value='". $cldFecha ."' class='xFormsFlatRo' onfocus='".$p_cldNombre."_triger.click();' $p_tag>".
+					 "<input type='text' size=12 name='x". $p_cldNombre ."' id='x". $p_cldNombre ."' value='". $cldFecha ."' class='xFormsFlatRo' >".
 					 "<input type='hidden' name='". $p_cldNombre ."' id='". $p_cldNombre ."' value='". $cldFecha_oracle ."'>".
 					 "&nbsp;<img src='../inc/calendario/img.gif' style='cursor: pointer;' id='". $p_cldNombre ."_triger'>".
 					 "&nbsp;<img src='../imagenes/cancelar.gif' style='cursor: pointer;' onclick='document.getElementById(\"x".$p_cldNombre."\").value=\"\"'>".

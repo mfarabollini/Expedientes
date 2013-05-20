@@ -45,11 +45,12 @@ if (isset($_GET['accion']))
 						  'Author'=>'Sistema de expedientes',
 						  'Subject'=>'',
 						  'Creator'=>'',
-						  'Producer'=>'Sistema de expedientes'
+						  'Producer'=>'Sistema de expentes'
 						  );
 		$pdf->addInfo($datacreator);
 		
 		//titulo
+		
 		$pdf->ezText(utf8_dec("CONCEJO MUNICIPAL DE ROSARIO\n\nSistema de Gestión Parlamentaria")."\n",15, array('justification'=>'center'));
 		$pdf->ezText("");
 		$pdf->ezText(utf8_dec2("Fecha de la consulta: ".date('d/m/Y')."                    Hora de la consulta: ".date('H:i:s')),10, array('justification'=>'center'));
@@ -128,7 +129,9 @@ if (isset($_GET['accion']))
 		{
 			if (numero.value == "" && 
 				tipo.value == "" && 
-				descripcion.value == "")
+				xfec_aprobacion_desde.value == "" &&
+				xfec_aprobacion_hasta.value == "" &&
+				tags.value == "" )
 			{
 				alert("Debe elegir al menos un criterio.");
 				return false;
@@ -164,9 +167,9 @@ if (isset($_GET['accion']))
 		}
 	}
 	
-	function Editar(norma)
+	function Editar(norma,tipo)
 	{
-		window.location = "../abms/norma.php?accion=editar&numero="+norma;
+		window.location = "../abms/norma.php?accion=editar&numero="+norma+"&tipo="+tipo;
 	}
 	
 	function GenerarPDF(norma)
@@ -240,11 +243,6 @@ if (isset($_GET['accion']))
             <td align="left" class="td1">Fecha de aprobaci&oacute;n hasta</td>
             <td align="left" class="td2"><?=CalendarioCreaInput('fec_aprobacion_hasta', $norma->fec_aprobacion_hasta, '')?></td>
           </tr>
-          
-          <tr>
-            <td align="left" class="td1">Descripci&oacute;n</td>
-            <td align="left" class="td2" colspan="3" ><input name="descripcion" type="text" id="descripcion" maxlength="200" style="width:350px;" /></td>
-          </tr>
            
           <tr>
             <td align="left" class="td1">Tags</td>
@@ -287,6 +285,7 @@ if (isset($_GET['accion']))
           <td align="center" class="header2">Tipo de Norma</td>
           <td align="center" class="header2">Fecha de Aprobaci&oacute;n</td>
           <td align="center" class="header2">Descripci&oacute;n</td>
+          <td align="center" class="header2">Estado</td>
           <td align="center" class="header2">Opciones</td>
         </tr>
 		<?
@@ -332,11 +331,12 @@ if (isset($_GET['accion']))
 			  </td>
 			  <td align="right"><?=FormatoFecha($rs_busq->fields['fec_aprob'])?></td>
 			  <td align="left"><?=utf8($rs_busq->fields['dsc_norma'])?></td>
+			  <td align="left"><?=utf8($rs_busq->fields['estado'])?></td>
 			  <td align="center" nowrap="nowrap">
-              <a href="ver_norma.php?numero=<?=$rs_busq->fields['nro_norma']?>" target="_blank"><img src="../imagenes/ver.gif" alt="Ver Norma" width="28" height="16" border="0" /></a>
+              <a href="ver_norma.php?numero=<?=$rs_busq->fields['nro_norma']?>&tipo=<?=$rs_busq->fields['tipo_norma']?>" target="_blank"><img src="../imagenes/ver.gif" alt="Ver Norma" width="28" height="16" border="0" /></a>
               <? if ($_SESSION['perfil'] == 'D' || $_SESSION['perfil'] == 'S' || $_SESSION['perfil'] == 'J' || ($_SESSION['perfil'] == 'T' && $rs_busq->fields['tipo'] == 'I' )){ ?>
                   &nbsp;&nbsp;
-                  <a href="javascript: Editar('<?=$rs_busq->fields['nro_norma']?>');"><img src="../imagenes/editar.gif" alt="Editar Norma" width="20" height="16" border="0" /></a>
+                  <a href="javascript: Editar('<? echo $rs_busq->fields['nro_norma'] . "','" . $rs_busq->fields['tipo_norma'];?>')"><img src="../imagenes/editar.gif" alt="Editar Norma" width="20" height="16" border="0" /></a>
               <? } ?>
               <? if ($_SESSION['perfil'] != 'C' && $_SESSION['perfil'] != 'U' && $_SESSION['perfil'] != 'E' && $_SESSION['perfil'] != 'T' && $_SESSION['perfil'] != 'A'){ ?>
                   &nbsp;&nbsp;
@@ -353,10 +353,12 @@ if (isset($_GET['accion']))
       <br />
       <input type="button" name="btnBuscarOtro" id="btnBuscarOtro" value="Buscar otro" style="width:150px" onclick="window.location = 'busqueda_normas.php';" />
       <? if ($_SESSION['perfil'] != 'C') { ?>
-      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
       <input type="button" name="btnImprimir" id="btnImprimir" value="Imprimir" style="width:150px" onclick="Imprimir();" />
-          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          <input type="button" name="btnVolver" id="btnVolver" value="Volver" style="width:150px" onclick="window.location = 'menu_principal.php';" />      
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="button" name="btnVolver" id="btnVolver" value="Volver" style="width:150px" onclick="window.location = 'menu_principal.php';" />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          <input type="button" name="btnCarga" id="btnCarga" value="Cargar Nueva Norma" style="width:150px" onclick="window.open('../abms/norma.php?accion=alta','_blank');" />      
       <? } else { ?>
           <input type="button" name="btnCerrarSesion" id="btnCerrarSesion" value="Cerrar sesion" style="width:150px" onclick="window.location = 'login.php';" />
       <? } ?>
