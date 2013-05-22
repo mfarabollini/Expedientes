@@ -75,6 +75,12 @@ a:hover {
 	font-size: 12px;
 	background-color: #B6B6B6;
 }
+.contenido_normas {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	background-color: #D1AABD;
+}
+
 
 #dhtmlpointer{
 	position:absolute;

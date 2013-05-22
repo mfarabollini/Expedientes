@@ -413,7 +413,7 @@ else
         <table width="800" height="107" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td width="130">&nbsp;</td>
-            <td width="670" align="left" valign="middle" class="texto_encabezado">Sistema de Gesti&oacute;n Parlamentaria</td>
+            <td width="670" align="left" valign="middle" class="texto_encabezado">Sistema de Documentaci&oacute;n Legislativa</td>
           </tr>
           <tr>
             <td>&nbsp;</td>
@@ -427,7 +427,7 @@ else
         </td>
   </tr>
 <tr>
-    <td height="440" align="center" valign="top" class="contenido"><br />
+    <td height="440" align="center" valign="top" class="contenido_normas"><br />
       <table width="505" border="0" cellspacing="0" cellpadding="0">
       <tr>
         <td id="td_solapa1" width="181" height="25" align="center" valign="middle" class="solapa3" onmouseout="Estilo(this, 'solapa1');" onmouseover="Estilo(this, 'solapa2');" onclick="EligeSolapa(1);">Datos norma</td>

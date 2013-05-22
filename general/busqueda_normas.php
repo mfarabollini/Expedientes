@@ -13,7 +13,7 @@ CheckPerfiles('SDOCEIUTAJ');
 //print $_SESSION['perfil'];
 
 
-$titulo_busq = 'Formulario de busqueda de normas';
+$titulo_busq = 'Formulario de Documentaci&oacute;n Legislativa';
 
 
 
@@ -212,7 +212,7 @@ if (isset($_GET['accion']))
         </td>
   </tr>
 <tr>
-    <td align="center" valign="top" class="contenido"><br />
+    <td align="center" valign="top" class="contenido_normas"><br />
         
         <? if (!$esPostBack) { ?>
         

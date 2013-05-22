@@ -45,7 +45,7 @@ $existe = $normas->CargarNorma($numero,$tipo);
         <table width="800" height="107" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td width="130">&nbsp;</td>
-            <td width="670" align="left" valign="middle" class="texto_encabezado">Sistema de Gesti&oacute;n Parlamentaria</td>
+            <td width="670" align="left" valign="middle" class="texto_encabezado">Sistema de Documentaci&oacute;n Legislativa</td>
           </tr>
           <tr>
             <td>&nbsp;</td>
@@ -59,7 +59,7 @@ $existe = $normas->CargarNorma($numero,$tipo);
         </td>
   </tr>
 <tr>
-    <td height="440" align="center" valign="top" class="contenido">
+    <td height="440" align="center" valign="top" class="contenido_normas">
     <?
     
 	if (!$existe)
@@ -127,19 +127,19 @@ $existe = $normas->CargarNorma($numero,$tipo);
           <tr id="tr_caratula">
             <td align="left" class="td1">Descripci&oacute;n</td>
             <td align="left" class="td2">
-            <div align="left" style="overflow:auto; height:40px; width:100%;">
+            <div align="left" style="overflow:auto; height:200px; width:100%;">
 				<?=str_replace(chr(13), '<br>', utf8($normas->descripcion)) ?>
             </div>            </td>
           </tr>
      		<tr id="tr_estado">
             <td align="left" class="td1">Estado</td>
             <td align="left" class="td2">
-            <div align="left" style="overflow:auto; height:20px; width:100%;">
+            <div align="left" style="overflow:auto; height:40px; width:100%;">
 				<?=str_replace(chr(13), '<br>', utf8($normas->estado)) ?>
             </div>            </td>
           </tr>
           <tr>
-            <td height="25" colspan="2" align="center" class="header2">Normas que modifica</td>
+            <td height="25" colspan="2" align="center" class="header2">Normas Relacionadas</td>
             </tr>
           <tr>
             <td colspan="2" align="left" class="td2">
@@ -186,7 +186,7 @@ $existe = $normas->CargarNorma($numero,$tipo);
             <table width="480" border="0" cellpadding="1" cellspacing="1" bgcolor="#FFFFFF">
               <tr>
                 <td align="center" class="header">Norma</td>
-                <td align="center" class="header">Normas que modifica</td>
+                <td align="center" class="header">Normas Relacionadas</td>
                 </tr>
                 
               <tr class="td1">
