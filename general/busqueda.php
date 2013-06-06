@@ -312,9 +312,7 @@ if (isset($_GET['accion']))
           </tr>
         </table>
       <br />
-      <? if ($_SESSION['perfil'] == 'C') { ?>
-      	<br><a href="busquedaAvanzada.php">Ir a Busqueda Avanzada</a><br>
-      <?php }?>
+
       <br />
       <br />
       <br />

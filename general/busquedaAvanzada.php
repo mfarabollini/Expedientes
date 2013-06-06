@@ -446,9 +446,6 @@ if (isset($_GET['accion']))
 
       <br />
       <br />
-      <? if ($_SESSION['perfil'] == 'C') { ?>
-      	<br><a href="busqueda.php">Volver a Busqueda Normal</a><br>
-      <?php }?>
 <?
 //	Causante
 //	Car&aacute;tula

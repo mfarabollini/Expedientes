@@ -18,7 +18,13 @@
 			$_SESSION['tiempo_ultimo'] = time();
 			$_SESSION["FormatoFecha"] = "dd/mm/yyyy";
 			
-			header("Location: busqueda.php");
+			if ($_GET['sel']=='busq'){	
+				header("Location: busqueda.php");
+			}elseif($_GET['sel']=='busq_av'){
+				header("Location: busquedaAvanzada.php");				
+			}elseif($_GET['sel']=='busq_norma'){
+				header("Location: busqueda_normas.php");				
+			}
 			exit;
 		}
 	}
@@ -141,7 +147,7 @@
         <table width="800" height="107" border="0" cellspacing="0" cellpadding="0">
           <tr>
             <td width="130">&nbsp;</td>
-            <td width="670" align="left" valign="middle" class="texto_encabezado">Sistema de Gesti&oacute;n Parlamentaria</td>
+            <td width="670" align="left" valign="middle" class="texto_encabezado">Sistema de Gesti&oacute;n Parlamentaria y Normas Legislativas</td>
           </tr>
           <tr>
             <td>&nbsp;</td>
@@ -178,11 +184,18 @@
     </tr>
 </table>
 <br>
-<a href="login.php?accion=consultante">Ingresar como consultante</a><br>
 <br>
 <br>
-<br>
-<br>
+
+
+<table >
+    <tr>
+		<td height="30" width="160" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq';">Consulta de Expedientes</td>        
+        <td height="30" width="160" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq_av';">Consulta Avanzada de Expedientes</td>
+        <td height="30" width="160" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq_norma';">Consulta de Normas legislativas	</td>
+    </tr>
+ </table>
+
 </form>
     
     </td>
