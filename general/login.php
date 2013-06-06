@@ -190,9 +190,11 @@
 
 <table >
     <tr>
-		<td height="30" width="160" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq';">Consulta de Expedientes</td>        
-        <td height="30" width="160" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq_av';">Consulta Avanzada de Expedientes</td>
-        <td height="30" width="160" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq_norma';">Consulta de Normas legislativas	</td>
+		<td height="30" width="140" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq';">Consulta de Expedientes</td>        
+        <td width="40"></td> 
+        <td height="30" width="140" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq_av';">Consulta Avanzada de Expedientes</td>
+        <td width="40"></td> 
+        <td height="30" width="140" align="center" valign="middle" class="menu1" onclick="window.location='login.php?accion=consultante&sel=busq_norma';">Consulta de Normas legislativas	</td>
     </tr>
  </table>
 
